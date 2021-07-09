@@ -21,7 +21,7 @@ struct Cell {
     uint16_t serialize() const;
     void unserialize(uint16_t data);
 
-    void read_from_token(std::string const& token);
+    void read_from_token(std::string token);
 };
 
 std::ostream& operator<<(std::ostream& os, Cell const& cell);

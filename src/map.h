@@ -18,6 +18,8 @@ class Map {
         Map(int height, int width);
         Map(std::string const& path);
 
+        std::pair<int, int> get_neighbor_pos(int x, int y, int dir) const;
+
         void save(std::string const& path) const;
         void load(std::string const& path);
 

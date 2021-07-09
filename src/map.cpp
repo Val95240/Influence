@@ -10,6 +10,36 @@ Map::Map(std::string const& path) {
     load(path);
 }
 
+std::pair<int, int> Map::get_neighbor_pos(int x, int y, int dir) const {
+    int x_neigh;
+    int y_neigh;
+
+    if (dir == 1) {
+        x_neigh = x - 1;
+        y_neigh = y + (x % 2);
+    } else if (dir == 2) {
+        x_neigh = x;
+        y_neigh = y + 1;
+    } else if (dir == 3) {
+        x_neigh = x + 1;
+        y_neigh = y + (x % 2);
+    } else if (dir == 4) {
+        x_neigh = x + 1;
+        y_neigh = y - !(x % 2);
+    } else if (dir == 5) {
+        x_neigh = x;
+        y_neigh = y - 1;
+    } else if (dir == 6) {
+        x_neigh = x - 1;
+        y_neigh = y - !(x % 2);
+    }
+
+    if (!(0 <= x_neigh && x_neigh < height && 0 <= y_neigh && y_neigh < width))
+        return {-1, -1};
+
+    return {x_neigh, y_neigh};
+}
+
 void Map::save(std::string const& path) const {
     std::vector<uint16_t> data = serialize();
     std::ofstream file(path, std::ios::binary);

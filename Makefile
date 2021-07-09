@@ -4,7 +4,7 @@
 CC = g++
 CFLAGS := -std=c++17 -Wall -Wextra -Werror -Wno-unused-parameter
 CFLAGS += -I/usr/include/SDL2 -I/usr/local/include/SDL2
-LFLAGS = -lSDL2 -lSDL2_gfx
+LFLAGS = -lSDL2 -lSDL2_gfx -lSDL2_ttf
 
 HEADERS := $(wildcard src/*.h)
 SOURCES := $(filter-out src/main_generate_map.cpp, $(wildcard src/*.cpp))

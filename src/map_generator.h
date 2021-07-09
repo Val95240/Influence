@@ -10,9 +10,15 @@
 #include "map.h"
 
 
+class Map;
+
 class MapGenerator {
     public:
-        static void from_str_file(std::string const& src, std::string const& dst);
+        static bool from_str_file(std::string const& src, std::string const& dst);
+
+    private:
+        static void clear_links(Map& map);
+        static bool is_valid(Map const& map);
 };
 
 #endif // GENERATE_MAP_H
