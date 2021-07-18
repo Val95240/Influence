@@ -1,0 +1,14 @@
+
+- [X] Banner bottom screen
+  + [X] Phase name
+  + [X] Click to setup next phase
+
+- [X] `MapEditor` class
+- [ ] `Player` class
+  + [ ] `Map::get_state`, `Map::act(action)`, ...
+- [ ] `MapGenerator` class
+
+
+# Bugs
+
+- [ ] A cell with value 2 is not the same size depending on limit_12

@@ -1,6 +1,7 @@
 
 #include "cell.h"
 
+
 Cell::Cell() {
     reset();
 }

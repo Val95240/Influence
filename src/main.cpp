@@ -2,19 +2,26 @@
 #include <filesystem>
 #include <iostream>
 
-#include "cell.h"
 #include "map.h"
-#include "map_drawer.h"
+#include "abstract_window.h"
+#include "main_window.h"
+#include "editor_window.h"
 
 
 int main(int argc, char* argv[]) {
-    std::string map_file;
-    if (argc < 2)
-        map_file = "maps/example.map";
-    else
-        map_file = argv[1];
+    bool edit = false;
+    std::string map_file = "maps/default.map";
 
-    if (!std::filesystem::exists(map_file)) {
+    for (int i=1; i<argc; i++) {
+        std::string arg = argv[i];
+
+        if (arg == "-e" || arg == "--edit")
+            edit = true;
+        else
+            map_file = arg;
+    }
+
+    if (!edit && !std::filesystem::exists(map_file)) {
         std::cout << "Map file not found: " << map_file << std::endl;
         return 1;
     }
@@ -22,13 +29,21 @@ int main(int argc, char* argv[]) {
     Map map(map_file);
     /* map.debug(); */
 
-    MapDrawer drawer;
-    if (!drawer.init()) {
-        std::cout << "Error in SDL initialization: " << drawer.errmsg() << std::endl;
+
+    AbstractWindow* window;
+    if (edit)
+        window = new EditorWindow(map_file);
+    else
+        window = new MainWindow();
+
+    if (!window->init()) {
+        std::cout << "Error in SDL initialization: " << window->errmsg() << std::endl;
         return -1;
     }
 
-    drawer.run(map);
+    window->run(map);
+
+    delete window;
 
     return 0;
 }

@@ -1,5 +1,5 @@
 
-.PHONY: default clean
+.PHONY: all clean
 
 CC = g++
 CFLAGS := -std=c++17 -Wall -Wextra -Werror -Wno-unused-parameter
@@ -13,6 +13,7 @@ OBJECTS := $(SOURCES:src/%.cpp=build/%.o)
 SOURCES_MAP := $(filter-out src/main.cpp, $(wildcard src/*.cpp))
 OBJECTS_MAP := $(SOURCES_MAP:src/%.cpp=build/%.o)
 
+all: main generate_map
 
 main: $(OBJECTS)
 	@ mkdir -p build/

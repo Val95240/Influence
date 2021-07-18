@@ -1,5 +1,7 @@
 
+#include <iostream>
 #include <filesystem>
+
 #include "map_generator.h"
 
 
