@@ -4,6 +4,7 @@
 #include <math.h>
 #include <stdlib.h>
 
+#include <algorithm>
 #include <fstream>
 
 
@@ -210,6 +211,17 @@ int Map::count_cells(int team) const {
     return count;
 }
 
+int Map::get_growth_limit(int team) const {
+    int limit = 0;
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            if (grid[i][j].exists && grid[i][j].team == team)
+                limit += (grid[i][j].limit_12 ? 12 : 8) - grid[i][j].value;
+        }
+    }
+    return limit;
+}
+
 std::vector<double> Map::get_team_percent() const {
     int total_value = count_total_value(0);
 
@@ -234,6 +246,40 @@ bool Map::grow_cell(int x, int y) {
 
     cell.value++;
     return true;
+}
+
+void Map::grow_random_cells(int team, int nb_cells) {
+    std::vector<std::pair<int, int>> cell_pos[12];
+    for (int i=0; i<height; i++) {
+        for (int j=0; j<width; j++) {
+            if (grid[i][j].exists && grid[i][j].team == team && grid[i][j].value < (grid[i][j].limit_12 ? 12 : 8))
+                cell_pos[grid[i][j].value-1].push_back({i, j});
+        }
+    }
+
+    int value = 0;
+    while (nb_cells> 0) {
+        while (cell_pos[value].empty())
+            value++;
+
+        if ((int)cell_pos[value].size() <= nb_cells) {
+            for (auto [x, y] : cell_pos[value]) {
+                if (grid[x][y].value < (grid[x][y].limit_12 ? 12 : 8))
+                    cell_pos[value+1].push_back({x, y});
+                grow_cell(x, y);
+                nb_cells--;
+            }
+        } else {
+            std::shuffle(cell_pos[value].begin(), cell_pos[value].end(), rng);
+            for (auto [x, y] : cell_pos[value]) {
+                grow_cell(x, y);
+                nb_cells--;
+                if (nb_cells == 0)
+                    return;
+            }
+        }
+        value++;
+    }
 }
 
 void Map::clear_links() {
@@ -298,6 +344,9 @@ void Map::load(std::string const& path) {
         return;
     }
 
+    std::random_device rd;
+    rng = std::default_random_engine{rd()};
+
     file.seekg(0, std::ios::end);
     size_t filesize = file.tellg();
     file.seekg(0, std::ios::beg);
@@ -326,6 +375,9 @@ void Map::debug() const {
 
 
 void Map::initialize(int height, int width, int nb_teams) {
+    std::random_device rd;
+    rng = std::default_random_engine{rd()};
+
     this->height = height;
     this->width = width;
     this->nb_teams = nb_teams;

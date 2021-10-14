@@ -24,10 +24,9 @@ class MainWindow : public AbstractWindow {
         bool attack_phase = true;
         int nb_cells_to_grow = -1;
 
+        void banner_action(Map& map);
         void click_callback(Map& map, int x, int y);
 };
 
 
 #endif // MAIN_WINDOW_H
-
-// vim: path+=/usr/include/SDL2,/usr/local/include/SDL2

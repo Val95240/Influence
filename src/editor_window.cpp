@@ -114,6 +114,13 @@ void EditorWindow::modify_value(Map& map) {
 void EditorWindow::edit_key_callback(Map& map, SDL_Keycode code) {
     bool shift = (SDL_GetModState() & KMOD_SHIFT);
     switch (code) {
+        case SDLK_s:
+            if (shift)
+                save_map_as(map);
+            else
+                save_map(map);
+            break;
+
         case SDLK_w:
             start_input(BannerAction::MODIFY_WIDTH);
             break;

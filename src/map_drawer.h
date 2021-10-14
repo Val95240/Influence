@@ -32,5 +32,3 @@ class MapDrawer : public AbstractDrawer {
 
 
 #endif // MAP_DRAWER_H
-
-// vim: path+=/usr/include/SDL2,/usr/local/include/SDL2

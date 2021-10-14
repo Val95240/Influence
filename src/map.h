@@ -2,6 +2,7 @@
 #ifndef MAP_H
 #define MAP_H
 
+#include <random>
 #include <string>
 #include <vector>
 
@@ -32,8 +33,10 @@ class Map {
 
         bool attack(int src_x, int src_y, int dst_x, int dst_y);
         int count_cells(int team) const;
+        int get_growth_limit(int team) const;
         std::vector<double> get_team_percent() const;
         bool grow_cell(int x, int y);
+        void grow_random_cells(int team, int nb_cells);
 
         void clear_links();
         bool is_valid() const;
@@ -44,6 +47,7 @@ class Map {
         void debug() const;
 
     private:
+        std::default_random_engine rng;
         void initialize(int height, int width, int nb_teams);
         int count_total_value(int team) const;
 

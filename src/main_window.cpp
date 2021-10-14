@@ -38,6 +38,11 @@ void MainWindow::run(Map& map) {
             else if (event.type == SDL_KEYDOWN) {
                 if (event.key.keysym.sym == SDLK_q)
                     quit = true;
+
+                if (event.key.keysym.sym == SDLK_SPACE) {
+                    banner_action(map);
+                    modified = true;
+                }
             }
 
             else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
@@ -63,6 +68,25 @@ void MainWindow::run(Map& map) {
     }
 }
 
+void MainWindow::banner_action(Map& map) {
+    if (attack_phase) {
+        attack_phase = false;
+        nb_cells_to_grow = map.count_cells(1);
+        int growth_limit = map.get_growth_limit(1);
+        if (nb_cells_to_grow > growth_limit)
+            nb_cells_to_grow = growth_limit;
+
+        if (nb_cells_to_grow == 0) {
+            attack_phase = true;
+            std::cout << "End of turn" << std::endl;
+        }
+
+    } else {
+        attack_phase = true;
+        map.grow_random_cells(1, nb_cells_to_grow);
+        std::cout << "End of turn" << std::endl;
+    }
+}
 
 void MainWindow::click_callback(Map& map, int x, int y) {
     int win_width, win_height;
@@ -73,15 +97,8 @@ void MainWindow::click_callback(Map& map, int x, int y) {
 
     // Click on banner
     if (y > win_height - BANNER_HEIGHT) {
-        if (attack_phase) {
-            attack_phase = false;
-            nb_cells_to_grow = map.count_cells(1);
-            return;
-        } else {
-            attack_phase = true;
-            std::cout << "End of turn" << std::endl;
-            return;
-        }
+        banner_action(map);
+        return;
     }
 
     auto [cell_x, cell_y] = map_drawer->get_cell_at_coords(x, y);
