@@ -6,6 +6,7 @@
 #include <SDL_ttf.h>
 #include <SDL2_gfxPrimitives.h>
 
+#include "cell.h"
 #include "map.h"
 
 
@@ -28,7 +29,7 @@ class AbstractDrawer {
 
         void set_map(Map const& map);
 
-        std::pair<int, int> get_cell_at_coords(int x, int y) const;
+        CellCoords get_cell_at_coords(int x, int y) const;
 
     protected:
         Map const* map = NULL;
@@ -43,16 +44,16 @@ class AbstractDrawer {
         SDL_Color banner_color = {0xFF, 0xFF, 0xFF, 0xFF};
         SDL_Color banner_color_2 = {0x70, 0x70, 0x70, 0xFF};
 
-        SDL_Point get_cell_pos(int x, int y) const;
-        SDL_Point get_cell_pos(int x, int y, int dir) const;
+        SDL_Point get_cell_pos(CellCoords cell_coords) const;
+        SDL_Point get_cell_pos(CellCoords cell_coords, int dir) const;
 
         void draw_banner_lines(int win_width, int win_height) const;
         bool draw_text(std::string text, SDL_Rect pos, SDL_Color color, bool small=false) const;
         bool draw_text(std::string text, int y, SDL_Color color, bool small=false) const;
         bool draw_text_center(std::string text, SDL_Rect pos, SDL_Color color) const;
-        void draw_cell(int x, int y, int radius, int value, uint32_t color, bool limit_12) const;
+        void draw_cell(CellCoords cell_coords, int radius, int value, uint32_t color, bool limit_12) const;
         void draw_links() const;
-        void draw_link(int x, int y, int dir) const;
+        void draw_link(CellCoords cell_coords, int dir) const;
 };
 
 

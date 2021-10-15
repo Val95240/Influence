@@ -59,7 +59,7 @@ void MainWindow::run(Map& map) {
 
         if (modified) {
             modified = false;
-            map_drawer->draw_map(focus_x, focus_y, attack_phase, nb_cells_to_grow);
+            map_drawer->draw_map(focus_coords, attack_phase, nb_cells_to_grow);
 
             SDL_RenderPresent(renderer);
         }
@@ -92,8 +92,7 @@ void MainWindow::click_callback(Map& map, int x, int y) {
     int win_width, win_height;
     SDL_GetWindowSize(window, &win_width, &win_height);
 
-    focus_x = -1;
-    focus_y = -1;
+    focus_coords = {-1, -1};
 
     // Click on banner
     if (y > win_height - BANNER_HEIGHT) {
@@ -101,28 +100,21 @@ void MainWindow::click_callback(Map& map, int x, int y) {
         return;
     }
 
-    auto [cell_x, cell_y] = map_drawer->get_cell_at_coords(x, y);
+    CellCoords cell_coords = map_drawer->get_cell_at_coords(x, y);
     if (attack_phase) {
         // Click on a cell of player's color
-        if (cell_x != -1 && map.grid[cell_x][cell_y].team == 1) {
-            focus_x = cell_x;
-            focus_y = cell_y;
-        }
+        if (cell_coords.x != -1 && map.grid[cell_coords.x][cell_coords.y].team == 1)
+            focus_coords = cell_coords;
 
         // Attack if last click was on one of player's cells
-        if (cell_x > -1 && last_click_x > -1 && map.grid[cell_x][cell_y].team != 1) {
-            if (map.attack(last_click_x, last_click_y, cell_x, cell_y)) {
-                focus_x = cell_x;
-                focus_y = cell_y;
-            }
-        }
+        if (cell_coords.x > -1 && last_clicked.x > -1 && map.grid[cell_coords.x][cell_coords.y].team != 1 && map.attack(last_clicked, cell_coords))
+            focus_coords = cell_coords;
 
-        last_click_x = focus_x;
-        last_click_y = focus_y;
+        last_clicked = focus_coords;
 
     } else {
-        if (cell_x > 0) {
-            if (map.grow_cell(cell_x, cell_y))
+        if (cell_coords.x > 0) {
+            if (map.grow_cell(cell_coords))
                 nb_cells_to_grow--;
 
             if (nb_cells_to_grow == 0) {

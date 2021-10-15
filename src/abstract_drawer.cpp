@@ -10,14 +10,14 @@ void AbstractDrawer::set_map(Map const& map) {
     this->map = &map;
 }
 
-std::pair<int, int> AbstractDrawer::get_cell_at_coords(int x, int y) const {
+CellCoords AbstractDrawer::get_cell_at_coords(int x, int y) const {
     int win_width, win_height;
     SDL_GetWindowSize(window, &win_width, &win_height);
     win_height -= banner_height;
 
     for (int i=0; i<map->height; i++) {
         for (int j=0; j<map->width; j++) {
-            SDL_Point cell_pos = get_cell_pos(i, j);
+            SDL_Point cell_pos = get_cell_pos({i, j});
             int radius = (map->grid[i][j].limit_12 ? RADIUS_12 : RADIUS);
             double dist = (cell_pos.x - x) * (cell_pos.x - x) + (cell_pos.y - y) * (cell_pos.y - y);
             if (dist < radius*radius)
@@ -35,23 +35,23 @@ static void compute_hex_coords(int radius, SDL_Point pos, short int hex_x[6], sh
     }
 }
 
-SDL_Point AbstractDrawer::get_cell_pos(int x, int y) const {
+SDL_Point AbstractDrawer::get_cell_pos(CellCoords cell_coords) const {
     int win_width, win_height;
     SDL_GetWindowSize(window, &win_width, &win_height);
     win_height -= banner_height;
 
-    int x_pos = 40 + y * ((double)(win_width - 80) / (map->width - 1));
-    int y_pos = 40 + x * ((double)(win_height - 80) / (map->height - 1));
+    int x_pos = 40 + cell_coords.y * ((double)(win_width - 80) / (map->width - 1));
+    int y_pos = 40 + cell_coords.x * ((double)(win_height - 80) / (map->height - 1));
 
-    if (x % 2 == 1)
+    if (cell_coords.x % 2 == 1)
         x_pos += ((double)(win_width - 80)) / (map->width - 1) / 2.0;
 
     return {x_pos, y_pos};
 }
 
-SDL_Point AbstractDrawer::get_cell_pos(int x, int y, int dir) const {
-    SDL_Point cell_pos = get_cell_pos(x, y);
-    int radius = (map->grid[x][y].limit_12 ? RADIUS_12 : RADIUS);
+SDL_Point AbstractDrawer::get_cell_pos(CellCoords cell_coords, int dir) const {
+    SDL_Point cell_pos = get_cell_pos(cell_coords);
+    int radius = (map->grid[cell_coords.x][cell_coords.y].limit_12 ? RADIUS_12 : RADIUS);
 
     cell_pos.x += radius * HEX_DX[dir-1];
     cell_pos.y += radius * HEX_DY[dir-1];
@@ -152,8 +152,8 @@ bool AbstractDrawer::draw_text_center(std::string text, SDL_Rect pos, SDL_Color 
     return true;
 }
 
-void AbstractDrawer::draw_cell(int x, int y, int radius, int value, uint32_t color, bool limit_12) const {
-    SDL_Point cell_pos = get_cell_pos(x, y);
+void AbstractDrawer::draw_cell(CellCoords cell_coords, int radius, int value, uint32_t color, bool limit_12) const {
+    SDL_Point cell_pos = get_cell_pos(cell_coords);
 
     // Outer hex (cell outline)
     short int hex_x[6], hex_y[6];
@@ -189,23 +189,23 @@ void AbstractDrawer::draw_links() const {
 
             for (int dir=1; dir<4; dir++) {
                 if (map->grid[i][j].links[dir-1])
-                    draw_link(i, j, dir);
+                    draw_link({i, j}, dir);
             }
         }
     }
 }
 
-void AbstractDrawer::draw_link(int x, int y, int dir) const {
-    auto [x_target, y_target] = map->get_neighbor_pos(x, y, dir);
-    if (x_target == -1 || !map->grid[x_target][y_target].exists)
+void AbstractDrawer::draw_link(CellCoords cell_coords, int dir) const {
+    CellCoords target_coords = map->get_neighbour_coords(cell_coords, dir);
+    if (target_coords.x == -1 || !map->grid[target_coords.x][target_coords.y].exists)
         return;
 
-    SDL_Point cell_pos = get_cell_pos(x, y, dir);
-    SDL_Point target_pos = get_cell_pos(x_target, y_target, dir + 3);
+    SDL_Point cell_pos = get_cell_pos(cell_coords, dir);
+    SDL_Point target_pos = get_cell_pos(target_coords, dir + 3);
 
     uint32_t color;
-    if (map->grid[x][y].team == map->grid[x_target][y_target].team)
-        color = TEAM_COLORS[map->grid[x][y].team];
+    if (map->grid[cell_coords.x][cell_coords.y].team == map->grid[target_coords.x][target_coords.y].team)
+        color = TEAM_COLORS[map->grid[cell_coords.x][cell_coords.y].team];
     else
         color = TEAM_COLORS[0];
 

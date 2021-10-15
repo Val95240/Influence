@@ -49,7 +49,7 @@ void EditorWindow::run(Map& map) {
                     modified = true;
                 }
 
-                if (focus_x != -1) {
+                if (focus_coords.x != -1) {
                     edit_key_callback(map, event.key.keysym.sym);
                     modified = true;
                 }
@@ -76,7 +76,7 @@ void EditorWindow::run(Map& map) {
 
         if (modified) {
             modified = false;
-            map_editor->draw_map(focus_x, focus_y);
+            map_editor->draw_map(focus_coords);
 
             SDL_RenderPresent(renderer);
         }
@@ -134,75 +134,74 @@ void EditorWindow::edit_key_callback(Map& map, SDL_Keycode code) {
             break;
 
         case SDLK_h:
-            if (focus_y > 0)
-                focus_y--;
+            if (focus_coords.y > 0)
+                focus_coords.y--;
             break;
 
         case SDLK_j:
-            if (focus_x < map.height-1)
-                focus_x++;
+            if (focus_coords.x < map.height-1)
+                focus_coords.x++;
             break;
 
         case SDLK_k:
-            if (focus_x > 0)
-                focus_x--;
+            if (focus_coords.x > 0)
+                focus_coords.x--;
             break;
 
         case SDLK_l:
-            if (focus_y < map.width-1)
-                focus_y++;
+            if (focus_coords.y < map.width-1)
+                focus_coords.y++;
             break;
 
         case SDLK_t:
-            map.switch_team(focus_x, focus_y, shift);
+            map.switch_team(focus_coords, shift);
             break;
 
         case SDLK_u:
-            map.change_value(focus_x, focus_y, shift);
+            map.change_value(focus_coords, shift);
             break;
 
         case SDLK_0:
-            map.toggle_links(focus_x, focus_y);
+            map.toggle_links(focus_coords);
             break;
 
         case SDLK_1:
-            map.toggle_link(focus_x, focus_y, 1);
+            map.toggle_link(focus_coords, 1);
             break;
 
         case SDLK_2:
-            map.toggle_link(focus_x, focus_y, 2);
+            map.toggle_link(focus_coords, 2);
             break;
 
         case SDLK_3:
-            map.toggle_link(focus_x, focus_y, 3);
+            map.toggle_link(focus_coords, 3);
             break;
 
         case SDLK_4:
-            map.toggle_link(focus_x, focus_y, 4);
+            map.toggle_link(focus_coords, 4);
             break;
 
         case SDLK_5:
-            map.toggle_link(focus_x, focus_y, 5);
+            map.toggle_link(focus_coords, 5);
             break;
 
         case SDLK_6:
-            map.toggle_link(focus_x, focus_y, 6);
+            map.toggle_link(focus_coords, 6);
             break;
 
         default:
             break;
     }
 
-    if (focus_x % 2 == 1 && focus_y == map.width-1)
-        focus_y--;
+    if (focus_coords.x % 2 == 1 && focus_coords.y == map.width-1)
+        focus_coords.y--;
 }
 
 void EditorWindow::click_callback(Map& map, int x, int y) {
     int win_width, win_height;
     SDL_GetWindowSize(window, &win_width, &win_height);
 
-    focus_x = -1;
-    focus_y = -1;
+    focus_coords = {-1, -1};
 
     if (map_editor->curr_action != BannerAction::NOOP) {
         stop_input();
@@ -232,11 +231,9 @@ void EditorWindow::click_callback(Map& map, int x, int y) {
         }
     }
 
-    auto [cell_x, cell_y] = map_editor->get_cell_at_coords(x, y);
-    if (cell_x != -1) {
-        focus_x = cell_x;
-        focus_y = cell_y;
-    }
+    CellCoords cell_coords = map_editor->get_cell_at_coords(x, y);
+    if (cell_coords.x != -1)
+        focus_coords = cell_coords;
 }
 
 void EditorWindow::save_map(Map const& map) {

@@ -5,6 +5,7 @@
 #include <string>
 
 #include "abstract_window.h"
+#include "cell.h"
 #include "map.h"
 #include "map_editor.h"
 
@@ -23,8 +24,7 @@ class EditorWindow : public AbstractWindow {
         BannerAction curr_action = BannerAction::NOOP;
         int input_value = 0;
 
-        int focus_x = 0;
-        int focus_y = 0;
+        CellCoords focus_coords;
 
         void start_input(BannerAction action);
         void stop_input();

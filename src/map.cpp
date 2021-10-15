@@ -13,10 +13,10 @@ static bool random_chance(double limit) {
     return x < limit;
 }
 
-static int distance(int src_x, int src_y, int dst_x, int dst_y) {
-    int dx = std::abs(dst_x - src_x);
-    int dy = std::abs(dst_y - src_y);
-    bool penalty = (src_x % 2 == 0 && dst_x % 2 == 1 && (src_y < dst_y)) || (dst_x % 2 == 0 && src_x % 2 == 1 && (dst_y < src_y));
+static int distance(CellCoords src, CellCoords dst) {
+    int dx = std::abs(dst.x - src.x);
+    int dy = std::abs(dst.y - src.y);
+    bool penalty = (src.x % 2 == 0 && dst.x % 2 == 1 && (src.y < dst.y)) || (dst.x % 2 == 0 && src.x % 2 == 1 && (dst.y < src.y));
 
     return std::max(dx, dy + dx / 2 + penalty);
 }
@@ -67,20 +67,20 @@ void Map::modify_nb_teams(int new_nb_teams) {
     }
 }
 
-void Map::switch_team(int x, int y, bool backward) {
-    Cell& cell = grid[x][y];
+void Map::switch_team(CellCoords cell_coords, bool backward) {
+    Cell& cell = grid[cell_coords.x][cell_coords.y];
 
     if (!cell.exists) {
         cell.exists = true;
         cell.team = (backward ? nb_teams : 0);
         cell.value = 1;
         for (int dir=1; dir<7; dir++) {
-            auto [neigh_x, neigh_y] = get_neighbor_pos(x, y, dir);
-            if (neigh_x == -1)
+            CellCoords neigh_coords = get_neighbour_coords(cell_coords, dir);
+            if (neigh_coords.x == -1)
                 continue;
 
             cell.links[dir-1] = true;
-            grid[neigh_x][neigh_y].links[(dir+2)%6] = true;
+            grid[neigh_coords.x][neigh_coords.y].links[(dir+2)%6] = true;
         }
     }
 
@@ -94,8 +94,8 @@ void Map::switch_team(int x, int y, bool backward) {
         cell.team = (cell.team + nb_teams + 1 + (backward ? -1 : 1)) % (nb_teams + 1);
 }
 
-void Map::change_value(int x, int y, bool backward) {
-    Cell& cell = grid[x][y];
+void Map::change_value(CellCoords cell_coords, bool backward) {
+    Cell& cell = grid[cell_coords.x][cell_coords.y];
 
     if (!cell.exists)
         return;
@@ -105,40 +105,40 @@ void Map::change_value(int x, int y, bool backward) {
         cell.value += (backward ? -1 : 1);
 }
 
-void Map::toggle_links(int x, int y) {
-    Cell& cell = grid[x][y];
+void Map::toggle_links(CellCoords cell_coords) {
+    Cell& cell = grid[cell_coords.x][cell_coords.y];
 
     bool all_true = true;
     for (int dir=1; dir<7; dir++) {
-        auto [neigh_x, neigh_y] = get_neighbor_pos(x, y, dir);
-        if (neigh_x != -1 && !cell.links[dir-1]) {
+        CellCoords neigh_coords = get_neighbour_coords(cell_coords, dir);
+        if (neigh_coords.x != -1 && !cell.links[dir-1]) {
             all_true = false;
             break;
         }
     }
 
     for (int dir=1; dir<7; dir++) {
-        auto [neigh_x, neigh_y] = get_neighbor_pos(x, y, dir);
-        if (neigh_x == -1)
+        CellCoords neigh_coords = get_neighbour_coords(cell_coords, dir);
+        if (neigh_coords.x == -1)
             continue;
 
         cell.links[dir-1] = !all_true;
-        grid[neigh_x][neigh_y].links[(dir+2)%6] = cell.links[dir-1];
+        grid[neigh_coords.x][neigh_coords.y].links[(dir+2)%6] = cell.links[dir-1];
     }
 }
 
-void Map::toggle_link(int x, int y, int dir) {
-    auto [neigh_x, neigh_y] = get_neighbor_pos(x, y, dir);
-    if (neigh_x == -1)
+void Map::toggle_link(CellCoords cell_coords, int dir) {
+    CellCoords neigh_coords = get_neighbour_coords(cell_coords, dir);
+    if (neigh_coords.x == -1)
         return;
 
-    grid[x][y].links[dir-1] = !grid[x][y].links[dir-1];
-    grid[neigh_x][neigh_y].links[(dir+2)%6] = grid[x][y].links[dir-1];
+    grid[cell_coords.x][cell_coords.y].links[dir-1] = !grid[cell_coords.x][cell_coords.y].links[dir-1];
+    grid[neigh_coords.x][neigh_coords.y].links[(dir+2)%6] = grid[cell_coords.x][cell_coords.y].links[dir-1];
 }
 
-std::pair<int, int> Map::get_neighbor_pos(int x, int y, int dir) const {
-    int neigh_x;
-    int neigh_y;
+CellCoords Map::get_neighbour_coords(CellCoords cell_coords, int dir) const {
+    auto [x, y] = cell_coords;
+    int neigh_x, neigh_y;
 
     if (dir == 1) {
         neigh_x = x - 1;
@@ -166,14 +166,14 @@ std::pair<int, int> Map::get_neighbor_pos(int x, int y, int dir) const {
     return {neigh_x, neigh_y};
 }
 
-bool Map::attack(int src_x, int src_y, int dst_x, int dst_y) {
-    Cell& src = grid[src_x][src_y];
-    Cell& dst = grid[dst_x][dst_y];
+bool Map::attack(CellCoords src_coords, CellCoords dst_coords) {
+    Cell& src = grid[src_coords.x][src_coords.y];
+    Cell& dst = grid[dst_coords.x][dst_coords.y];
 
     if (!src.exists || !dst.exists || src.value < 2 || src.team == dst.team)
         return false;
 
-    if (distance(src_x, src_y, dst_x, dst_y) > 1)
+    if (distance(src_coords, dst_coords) > 1)
         return false;
 
     if (src.value < dst.value - 1) {
@@ -238,8 +238,8 @@ std::vector<double> Map::get_team_percent() const {
     return percents;
 }
 
-bool Map::grow_cell(int x, int y) {
-    Cell& cell = grid[x][y];
+bool Map::grow_cell(CellCoords cell_coords) {
+    Cell& cell = grid[cell_coords.x][cell_coords.y];
 
     if (!cell.exists || cell.team != 1 || cell.value >= (cell.limit_12 ? 12 : 8))
         return false;
@@ -249,7 +249,7 @@ bool Map::grow_cell(int x, int y) {
 }
 
 void Map::grow_random_cells(int team, int nb_cells) {
-    std::vector<std::pair<int, int>> cell_pos[12];
+    std::vector<CellCoords> cell_pos[12];
     for (int i=0; i<height; i++) {
         for (int j=0; j<width; j++) {
             if (grid[i][j].exists && grid[i][j].team == team && grid[i][j].value < (grid[i][j].limit_12 ? 12 : 8))
@@ -263,16 +263,16 @@ void Map::grow_random_cells(int team, int nb_cells) {
             value++;
 
         if ((int)cell_pos[value].size() <= nb_cells) {
-            for (auto [x, y] : cell_pos[value]) {
-                if (grid[x][y].value < (grid[x][y].limit_12 ? 12 : 8))
-                    cell_pos[value+1].push_back({x, y});
-                grow_cell(x, y);
+            for (CellCoords cell_coords : cell_pos[value]) {
+                if (grid[cell_coords.x][cell_coords.y].value < (grid[cell_coords.x][cell_coords.y].limit_12 ? 12 : 8))
+                    cell_pos[value+1].push_back(cell_coords);
+                grow_cell(cell_coords);
                 nb_cells--;
             }
         } else {
             std::shuffle(cell_pos[value].begin(), cell_pos[value].end(), rng);
-            for (auto [x, y] : cell_pos[value]) {
-                grow_cell(x, y);
+            for (CellCoords cell_coords : cell_pos[value]) {
+                grow_cell(cell_coords);
                 nb_cells--;
                 if (nb_cells == 0)
                     return;
@@ -289,8 +289,8 @@ void Map::clear_links() {
                 continue;
 
             for (int dir=1; dir<7; dir++) {
-                auto [x_neigh, y_neigh] = get_neighbor_pos(i, j, dir);
-                if (x_neigh == -1 || !grid[x_neigh][y_neigh].exists)
+                CellCoords neigh_coords = get_neighbour_coords({i, j}, dir);
+                if (neigh_coords.x == -1 || !grid[neigh_coords.x][neigh_coords.y].exists)
                     grid[i][j].links[dir-1] = false;
             }
         }
@@ -308,11 +308,11 @@ bool Map::is_valid() const {
                 if (!curr_cell.links[dir-1])
                     continue;
 
-                auto [neigh_x, neigh_y] = get_neighbor_pos(i, j, dir);
-                if (neigh_x == -1)
+                CellCoords neigh_coords = get_neighbour_coords({i, j}, dir);
+                if (neigh_coords.x == -1)
                     continue;
 
-                Cell neigh_cell = grid[neigh_x][neigh_y];
+                Cell neigh_cell = grid[neigh_coords.x][neigh_coords.y];
                 if (!neigh_cell.exists || !neigh_cell.links[(dir+2)%6])
                     return false;
             }

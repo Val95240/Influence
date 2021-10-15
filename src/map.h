@@ -24,18 +24,18 @@ class Map {
 
         void resize(int height, int width);
         void modify_nb_teams(int new_nb_teams);
-        void switch_team(int x, int y, bool backward=false);
-        void change_value(int x, int y, bool backward=false);
-        void toggle_links(int x, int y);
-        void toggle_link(int x, int y, int dir);
+        void switch_team(CellCoords cell_coords, bool backward=false);
+        void change_value(CellCoords cell_coords, bool backward=false);
+        void toggle_links(CellCoords cell_coords);
+        void toggle_link(CellCoords cell_coords, int dir);
 
-        std::pair<int, int> get_neighbor_pos(int x, int y, int dir) const;
+        CellCoords get_neighbour_coords(CellCoords cell_coords, int dir) const;
 
-        bool attack(int src_x, int src_y, int dst_x, int dst_y);
+        bool attack(CellCoords src, CellCoords dst);
         int count_cells(int team) const;
         int get_growth_limit(int team) const;
         std::vector<double> get_team_percent() const;
-        bool grow_cell(int x, int y);
+        bool grow_cell(CellCoords cell_coords);
         void grow_random_cells(int team, int nb_cells);
 
         void clear_links();

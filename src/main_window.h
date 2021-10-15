@@ -3,6 +3,7 @@
 #define MAIN_WINDOW_H
 
 #include "abstract_window.h"
+#include "cell.h"
 #include "map.h"
 #include "map_drawer.h"
 
@@ -19,8 +20,8 @@ class MainWindow : public AbstractWindow {
 
         int last_click_x = -1;
         int last_click_y = -1;
-        int focus_x = -1;
-        int focus_y = -1;
+        CellCoords last_clicked = {-1, -1};
+        CellCoords focus_coords;
         bool attack_phase = true;
         int nb_cells_to_grow = -1;
 

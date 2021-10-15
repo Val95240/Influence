@@ -17,21 +17,21 @@ BannerAction MapEditor::click_banner(int x, int y) {
     return BannerAction::NOOP;
 }
 
-void MapEditor::draw_map(int focus_x, int focus_y) {
+void MapEditor::draw_map(CellCoords focus_coords) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
     SDL_RenderClear(renderer);
 
     for (int i=0; i<map->height; i++) {
         for (int j=0; j<map->width; j++) {
-            bool focus = (i == focus_x && j == focus_y);
-            draw_cell(i, j, focus);
+            bool focus = (i == focus_coords.x && j == focus_coords.y);
+            draw_cell(focus_coords, focus);
         }
     }
 
     draw_links();
 
     std::string banner_text;
-    if (focus_x == -1)
+    if (focus_coords.x == -1)
         banner_text = "Select a cell to edit it";
     else
         banner_text = "Modify the cell team with `t` and its value with `[k]` and `[j]`";
@@ -92,15 +92,15 @@ void MapEditor::draw_banner(std::string banner_text) const {
     draw_text_center("Save as...", pos[4], setting_color_2);
 }
 
-void MapEditor::draw_cell(int x, int y, bool focus) const {
-    Cell const& cell = map->grid[x][y];
+void MapEditor::draw_cell(CellCoords cell_coords, bool focus) const {
+    Cell const& cell = map->grid[cell_coords.x][cell_coords.y];
     uint32_t color = (focus ? FOCUS_COLOR[cell.team] : TEAM_COLORS[cell.team]);
 
     if (!cell.exists) {
-        AbstractDrawer::draw_cell(x, y, RADIUS, -1, color, false);
+        AbstractDrawer::draw_cell(cell_coords, RADIUS, -1, color, false);
         return;
     }
 
     int radius = (cell.limit_12 ? RADIUS_12 : RADIUS);
-    AbstractDrawer::draw_cell(x, y, radius, cell.value, color, cell.limit_12);
+    AbstractDrawer::draw_cell(cell_coords, radius, cell.value, color, cell.limit_12);
 }

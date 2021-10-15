@@ -13,7 +13,7 @@ void MapDrawer::set_map(Map const& map) {
     reset_active_cells();
 }
 
-void MapDrawer::draw_map(int focus_x, int focus_y, bool attack_phase, int nb_cells_to_grow) {
+void MapDrawer::draw_map(CellCoords focus_coords, bool attack_phase, int nb_cells_to_grow) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
     SDL_RenderClear(renderer);
 
@@ -21,8 +21,8 @@ void MapDrawer::draw_map(int focus_x, int focus_y, bool attack_phase, int nb_cel
 
     for (int i=0; i<map->height; i++) {
         for (int j=0; j<map->width; j++) {
-            bool focus = (i == focus_x && j == focus_y);
-            draw_cell(i, j, focus);
+            bool focus = (i == focus_coords.x && j == focus_coords.y);
+            draw_cell({i, j}, focus);
         }
     }
 
@@ -32,7 +32,7 @@ void MapDrawer::draw_map(int focus_x, int focus_y, bool attack_phase, int nb_cel
     if (attack_phase) {
         if (no_active_cell())
             banner_text = "Touch here to end attack";
-        else if (focus_x == -1 || !active_cells[focus_x][focus_y])
+        else if (focus_coords.x == -1 || !active_cells[focus_coords.x][focus_coords.y])
             banner_text = "Touch a cell of your color\n(or touch here to end attack)";
         else
             banner_text = "Touch a nearby cell to attack\n(or touch here to end attack)";
@@ -51,11 +51,11 @@ bool MapDrawer::no_active_cell() const {
                 continue;
 
             for (int dir=1; dir<7; dir++) {
-                auto [neigh_x, neigh_y] = map->get_neighbor_pos(i, j, dir);
-                if (neigh_x == -1)
+                CellCoords neigh_coords = map->get_neighbour_coords({i, j}, dir);
+                if (neigh_coords.x == -1)
                     continue;
 
-                if (map->grid[neigh_x][neigh_y].exists && map->grid[neigh_x][neigh_y].team != 1)
+                if (map->grid[neigh_coords.x][neigh_coords.y].exists && map->grid[neigh_coords.x][neigh_coords.y].team != 1)
                     return false;
             }
         }
@@ -81,11 +81,11 @@ void MapDrawer::mark_active_cells() {
                 continue;
 
             for (int dir=1; dir<7; dir++) {
-                auto [neigh_x, neigh_y] = map->get_neighbor_pos(i, j, dir);
-                if (neigh_x == -1)
+                CellCoords neigh_coords = map->get_neighbour_coords({i, j}, dir);
+                if (neigh_coords.x == -1)
                     continue;
 
-                if (map->grid[neigh_x][neigh_y].exists && map->grid[neigh_x][neigh_y].team != 1) {
+                if (map->grid[neigh_coords.x][neigh_coords.y].exists && map->grid[neigh_coords.x][neigh_coords.y].team != 1) {
                     active_cells[i][j] = true;
                     break;
                 }
@@ -115,8 +115,8 @@ void MapDrawer::draw_banner(std::string banner_text) const {
         draw_text(sub_line, win_height - 0.35*banner_height, banner_color_2, true);
 }
 
-void MapDrawer::draw_cell(int x, int y, bool focus) const {
-    Cell const& cell = map->grid[x][y];
+void MapDrawer::draw_cell(CellCoords cell_coords, bool focus) const {
+    Cell const& cell = map->grid[cell_coords.x][cell_coords.y];
     if (!cell.exists)
         return;
 
@@ -125,7 +125,7 @@ void MapDrawer::draw_cell(int x, int y, bool focus) const {
     uint32_t color = TEAM_COLORS[cell.team];
     if (cell.team == 1) {
         // Inactive cells
-        if (!active_cells[x][y])
+        if (!active_cells[cell_coords.x][cell_coords.y])
             color = INACTIVE_COLOR;
 
         // Focused cell color
@@ -133,5 +133,5 @@ void MapDrawer::draw_cell(int x, int y, bool focus) const {
             color = FOCUS_COLOR[1];
     }
 
-    AbstractDrawer::draw_cell(x, y, radius, cell.value, color, cell.limit_12);
+    AbstractDrawer::draw_cell(cell_coords, radius, cell.value, color, cell.limit_12);
 }

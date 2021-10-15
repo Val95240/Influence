@@ -6,6 +6,11 @@
 #include <string>
 
 
+struct CellCoords {
+    int x;
+    int y;
+};
+
 struct Cell {
     bool exists;
     bool links[6];

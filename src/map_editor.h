@@ -9,6 +9,7 @@
 #include <SDL2_gfxPrimitives.h>
 
 #include "abstract_drawer.h"
+#include "cell.h"
 
 
 enum BannerAction {
@@ -29,7 +30,7 @@ class MapEditor : public AbstractDrawer {
 
         BannerAction click_banner(int x, int y);
         void modify(BannerAction action);
-        void draw_map(int focus_x, int focus_y);
+        void draw_map(CellCoords focus_coords);
 
     private:
         SDL_Color setting_color_1 = {0x70, 0xF0, 0xF0, 0xFF};
@@ -38,7 +39,7 @@ class MapEditor : public AbstractDrawer {
         void get_button_pos(SDL_Rect pos[4]) const;
 
         void draw_banner(std::string banner_text) const;
-        void draw_cell(int x, int y, bool focus) const;
+        void draw_cell(CellCoords cell_coords, bool focus) const;
 };
 
 
