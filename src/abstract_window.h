@@ -13,7 +13,6 @@ class AbstractWindow {
         virtual ~AbstractWindow();
 
         virtual bool init();
-        virtual void run(Map& map) = 0;
 
         char* errmsg() const;
 

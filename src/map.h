@@ -31,12 +31,9 @@ class Map {
 
         CellCoords get_neighbour_coords(CellCoords cell_coords, int dir) const;
 
-        bool attack(CellCoords src, CellCoords dst);
         int count_cells(int team) const;
-        int get_growth_limit(int team) const;
         std::vector<double> get_team_percent() const;
         bool grow_cell(CellCoords cell_coords);
-        void grow_random_cells(int team, int nb_cells);
 
         void clear_links();
         bool is_valid() const;
@@ -46,7 +43,7 @@ class Map {
 
         void debug() const;
 
-    private:
+    protected:
         std::default_random_engine rng;
         void initialize(int height, int width, int nb_teams);
         int count_total_value(int team) const;

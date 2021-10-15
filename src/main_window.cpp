@@ -2,8 +2,6 @@
 
 #include "main_window.h"
 
-#include <stdio.h>
-
 #include <SDL.h>
 #include <SDL_ttf.h>
 
@@ -23,9 +21,9 @@ bool MainWindow::init() {
     return true;
 }
 
-void MainWindow::run(Map& map) {
+void MainWindow::run(Arena& arena) {
     SDL_ShowWindow(window);
-    map_drawer->set_map(map);
+    map_drawer->set_map(arena);
 
     bool modified = true;
     bool quit = false;
@@ -40,7 +38,7 @@ void MainWindow::run(Map& map) {
                     quit = true;
 
                 if (event.key.keysym.sym == SDLK_SPACE) {
-                    banner_action(map);
+                    banner_action(arena);
                     modified = true;
                 }
             }
@@ -52,7 +50,7 @@ void MainWindow::run(Map& map) {
                 int x, y;
                 SDL_GetMouseState(&x, &y);
 
-                click_callback(map, x, y);
+                click_callback(arena, x, y);
                 modified = true;
             }
         }
@@ -68,11 +66,11 @@ void MainWindow::run(Map& map) {
     }
 }
 
-void MainWindow::banner_action(Map& map) {
+void MainWindow::banner_action(Arena& arena) {
     if (attack_phase) {
         attack_phase = false;
-        nb_cells_to_grow = map.count_cells(1);
-        int growth_limit = map.get_growth_limit(1);
+        nb_cells_to_grow = arena.count_cells(1);
+        int growth_limit = arena.get_growth_limit(1);
         if (nb_cells_to_grow > growth_limit)
             nb_cells_to_grow = growth_limit;
 
@@ -83,12 +81,12 @@ void MainWindow::banner_action(Map& map) {
 
     } else {
         attack_phase = true;
-        map.grow_random_cells(1, nb_cells_to_grow);
+        arena.grow_random_cells(1, nb_cells_to_grow);
         std::cout << "End of turn" << std::endl;
     }
 }
 
-void MainWindow::click_callback(Map& map, int x, int y) {
+void MainWindow::click_callback(Arena& arena, int x, int y) {
     int win_width, win_height;
     SDL_GetWindowSize(window, &win_width, &win_height);
 
@@ -96,25 +94,27 @@ void MainWindow::click_callback(Map& map, int x, int y) {
 
     // Click on banner
     if (y > win_height - BANNER_HEIGHT) {
-        banner_action(map);
+        banner_action(arena);
         return;
     }
 
     CellCoords cell_coords = map_drawer->get_cell_at_coords(x, y);
     if (attack_phase) {
         // Click on a cell of player's color
-        if (cell_coords.x != -1 && map.grid[cell_coords.x][cell_coords.y].team == 1)
+        if (cell_coords.x != -1 && arena.grid[cell_coords.x][cell_coords.y].team == 1)
             focus_coords = cell_coords;
 
         // Attack if last click was on one of player's cells
-        if (cell_coords.x > -1 && last_clicked.x > -1 && map.grid[cell_coords.x][cell_coords.y].team != 1 && map.attack(last_clicked, cell_coords))
-            focus_coords = cell_coords;
+        if (cell_coords.x > -1 && last_clicked.x > -1 && arena.grid[cell_coords.x][cell_coords.y].team != 1) {
+            if (arena.attack(last_clicked, cell_coords))
+                focus_coords = cell_coords;
+        }
 
         last_clicked = focus_coords;
 
     } else {
         if (cell_coords.x > 0) {
-            if (map.grow_cell(cell_coords))
+            if (arena.grow_cell(cell_coords))
                 nb_cells_to_grow--;
 
             if (nb_cells_to_grow == 0) {

@@ -4,9 +4,11 @@
   + [X] Click to setup next phase
 
 - [X] `MapEditor` class
-- [ ] `Player` class
-  + [ ] `Map::get_state`, `Map::act(action)`, ...
+- [ ] `Agent` class
+  + [ ] `Map::get_state()`, `Map::act(action)`, ...
 - [ ] `MapGenerator` class
+  + [ ] Params: size, symmetry, dropout
+  + [ ] Equal distance between initial cell
 
 
 # Bugs

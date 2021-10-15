@@ -16,7 +16,7 @@ class EditorWindow : public AbstractWindow {
         ~EditorWindow();
 
         bool init() override;
-        void run(Map& map) override;
+        void run(Map& map);
 
     private:
         MapEditor* map_editor;
@@ -24,7 +24,7 @@ class EditorWindow : public AbstractWindow {
         BannerAction curr_action = BannerAction::NOOP;
         int input_value = 0;
 
-        CellCoords focus_coords;
+        CellCoords focus_coords = {0, 0};
 
         void start_input(BannerAction action);
         void stop_input();

@@ -3,8 +3,8 @@
 #define MAIN_WINDOW_H
 
 #include "abstract_window.h"
+#include "arena.h"
 #include "cell.h"
-#include "map.h"
 #include "map_drawer.h"
 
 
@@ -13,20 +13,18 @@ class MainWindow : public AbstractWindow {
         ~MainWindow();
 
         bool init() override;
-        void run(Map& map) override;
+        void run(Arena& arena);
 
     private:
         MapDrawer* map_drawer = NULL;
 
-        int last_click_x = -1;
-        int last_click_y = -1;
         CellCoords last_clicked = {-1, -1};
-        CellCoords focus_coords;
+        CellCoords focus_coords = {-1, -1};
         bool attack_phase = true;
         int nb_cells_to_grow = -1;
 
-        void banner_action(Map& map);
-        void click_callback(Map& map, int x, int y);
+        void banner_action(Arena& arena);
+        void click_callback(Arena& arena, int x, int y);
 };
 
 

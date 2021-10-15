@@ -2,10 +2,10 @@
 #include <filesystem>
 #include <iostream>
 
-#include "map.h"
 #include "abstract_window.h"
-#include "main_window.h"
+#include "arena.h"
 #include "editor_window.h"
+#include "main_window.h"
 
 
 int main(int argc, char* argv[]) {
@@ -26,24 +26,26 @@ int main(int argc, char* argv[]) {
         return 1;
     }
 
-    Map map(map_file);
-    /* map.debug(); */
+    if (edit) {
+        EditorWindow window(map_file);
+        if (!window.init()) {
+            std::cout << "Error in SDL initialization: " << window.errmsg() << std::endl;
+            return -1;
+        }
 
+        Map map(map_file);
+        window.run(map);
 
-    AbstractWindow* window;
-    if (edit)
-        window = new EditorWindow(map_file);
-    else
-        window = new MainWindow();
+    } else {
+        MainWindow window;
+        if (!window.init()) {
+            std::cout << "Error in SDL initialization: " << window.errmsg() << std::endl;
+            return -1;
+        }
 
-    if (!window->init()) {
-        std::cout << "Error in SDL initialization: " << window->errmsg() << std::endl;
-        return -1;
+        Arena arena(map_file);
+        window.run(arena);
     }
-
-    window->run(map);
-
-    delete window;
 
     return 0;
 }
