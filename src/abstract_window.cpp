@@ -1,7 +1,7 @@
 
 #include "abstract_window.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 
 AbstractWindow::~AbstractWindow() {

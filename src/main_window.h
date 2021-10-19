@@ -8,6 +8,8 @@
 #include "map_drawer.h"
 
 
+enum Phase { ATTACK, GROWTH, ENEMY };
+
 class MainWindow : public AbstractWindow {
     public:
         ~MainWindow();
@@ -20,9 +22,12 @@ class MainWindow : public AbstractWindow {
 
         CellCoords last_clicked = {-1, -1};
         CellCoords focus_coords = {-1, -1};
-        bool attack_phase = true;
+
+        Phase phase;
+        int active_player;
         int nb_cells_to_grow = -1;
 
+        void end_turn(Arena const& arena);
         void banner_action(Arena& arena);
         void click_callback(Arena& arena, int x, int y);
 };

@@ -33,7 +33,7 @@ class Map {
 
         int count_cells(int team) const;
         std::vector<double> get_team_percent() const;
-        bool grow_cell(CellCoords cell_coords);
+        bool grow_cell(int team, CellCoords cell_coords);
 
         void clear_links();
         bool is_valid() const;
@@ -44,7 +44,6 @@ class Map {
         void debug() const;
 
     protected:
-        std::default_random_engine rng;
         void initialize(int height, int width, int nb_teams);
         int count_total_value(int team) const;
 

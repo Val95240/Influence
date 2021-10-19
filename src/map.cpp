@@ -174,10 +174,10 @@ std::vector<double> Map::get_team_percent() const {
     return percents;
 }
 
-bool Map::grow_cell(CellCoords cell_coords) {
+bool Map::grow_cell(int team, CellCoords cell_coords) {
     Cell& cell = grid[cell_coords.x][cell_coords.y];
 
-    if (!cell.exists || cell.team != 1 || cell.value >= (cell.limit_12 ? 12 : 8))
+    if (!cell.exists || cell.team != team || cell.value >= (cell.limit_12 ? 12 : 8))
         return false;
 
     cell.value++;
@@ -246,9 +246,6 @@ void Map::load(std::string const& path) {
         return;
     }
 
-    std::random_device rd;
-    rng = std::default_random_engine{rd()};
-
     file.seekg(0, std::ios::end);
     size_t filesize = file.tellg();
     file.seekg(0, std::ios::beg);
@@ -277,9 +274,6 @@ void Map::debug() const {
 
 
 void Map::initialize(int height, int width, int nb_teams) {
-    std::random_device rd;
-    rng = std::default_random_engine{rd()};
-
     this->height = height;
     this->width = width;
     this->nb_teams = nb_teams;

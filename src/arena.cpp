@@ -1,25 +1,36 @@
 
 #include "arena.h"
 
-#include <math.h>
-#include <stdlib.h>
-
-#include <algorithm>
+#include "agents/random_agent.h"
+#include "utils.h"
 
 
-static bool random_chance(double limit) {
-    double x = rand() / (RAND_MAX + 1.0);
-    return x < limit;
+Arena::Arena(std::string const& path, std::vector<int> agent_levels) : Map(path) {
+    if (!agent_levels.empty() && agent_levels.size() != (size_t)nb_teams) {
+        std::cerr << "Agent difficulties does not match number of teams" << std::endl;
+        agent_levels.clear();
+    }
+
+    if (agent_levels.empty()) {
+        for (int i=0; i<nb_teams; i++) {
+            agents.push_back(new RandomAgent(*this, i+2));
+        }
+        return;
+    }
+
+    for (size_t i=0; i<agent_levels.size(); i++) {
+        switch (agent_levels[i]) {
+            case 1:  // Random agent
+                agents.push_back(new RandomAgent(*this, i+2));
+                break;
+
+            default:  // Random agent
+                std::cerr << "Agent (difficulty " << agent_levels[i] << ") not implemented !" << std::endl;
+                agents.push_back(new RandomAgent(*this, i+2));
+                break;
+        }
+    }
 }
-
-static int distance(CellCoords src, CellCoords dst) {
-    int dx = std::abs(dst.x - src.x);
-    int dy = std::abs(dst.y - src.y);
-    bool penalty = (src.x % 2 == 0 && dst.x % 2 == 1 && (src.y < dst.y)) || (dst.x % 2 == 0 && src.x % 2 == 1 && (dst.y < src.y));
-
-    return std::max(dx, dy + dx / 2 + penalty);
-}
-
 
 bool Arena::attack(CellCoords src_coords, CellCoords dst_coords) {
     Cell& src = grid[src_coords.x][src_coords.y];
@@ -28,7 +39,7 @@ bool Arena::attack(CellCoords src_coords, CellCoords dst_coords) {
     if (!src.exists || !dst.exists || src.value < 2 || src.team == dst.team)
         return false;
 
-    if (distance(src_coords, dst_coords) > 1)
+    if (utils::distance(src_coords, dst_coords) > 1)
         return false;
 
     if (src.value < dst.value - 1) {
@@ -49,7 +60,7 @@ bool Arena::attack(CellCoords src_coords, CellCoords dst_coords) {
         double proba = 0.50 + 0.25 * (src.value - dst.value);
         src.value = 1;
         dst.value = 1;
-        if (random_chance(proba))
+        if (utils::random_chance(proba))
             dst.team = src.team;
     }
 
@@ -77,7 +88,7 @@ void Arena::grow_random_cells(int team, int nb_cells) {
     }
 
     int value = 0;
-    while (nb_cells> 0) {
+    while (nb_cells > 0) {
         while (cell_pos[value].empty())
             value++;
 
@@ -85,19 +96,39 @@ void Arena::grow_random_cells(int team, int nb_cells) {
             for (CellCoords cell_coords : cell_pos[value]) {
                 if (grid[cell_coords.x][cell_coords.y].value < (grid[cell_coords.x][cell_coords.y].limit_12 ? 12 : 8))
                     cell_pos[value+1].push_back(cell_coords);
-                grow_cell(cell_coords);
+                grow_cell(team, cell_coords);
                 nb_cells--;
             }
         } else {
-            std::shuffle(cell_pos[value].begin(), cell_pos[value].end(), rng);
-            for (CellCoords cell_coords : cell_pos[value]) {
-                grow_cell(cell_coords);
-                nb_cells--;
-                if (nb_cells == 0)
-                    return;
-            }
+            utils::shuffle(cell_pos[value]);
+            for (int i=0; i<nb_cells; i++)
+                grow_cell(team, cell_pos[value][i]);
+            return;
         }
+
         value++;
     }
 }
 
+bool Arena::play_agent_turn(int player_id) {
+    if (player_id != last_player_id) {
+        agents[player_id-2]->init_turn();
+        attack_phase = true;
+    }
+    last_player_id = player_id;
+
+    if (attack_phase) {
+        auto [src, dst] = agents[player_id-2]->attack();
+        attack(src, dst);
+        attack_phase = agents[player_id-2]->end_attack();
+        nb_cells_to_grow = count_cells(player_id);
+
+    } else {
+        CellCoords cell_coords = agents[player_id-2]->grow(nb_cells_to_grow--);
+        grow_cell(player_id, cell_coords);
+        if (nb_cells_to_grow == 0 || agents[player_id-2]->end_growth())
+            return true;
+    }
+
+    return false;
+}

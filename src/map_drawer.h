@@ -18,7 +18,7 @@ class MapDrawer : public AbstractDrawer {
         using AbstractDrawer::AbstractDrawer;
 
         void set_map(Map const& map);
-        void draw_map(CellCoords focus_coords, bool attack_phase, int nb_cells_to_grow);
+        void draw_map(CellCoords focus_coords, int phase, int nb_cells_to_grow);
 
         bool no_active_cell() const;
 

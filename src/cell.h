@@ -11,6 +11,8 @@ struct CellCoords {
     int y;
 };
 
+bool operator==(CellCoords const& a, CellCoords const& b);
+
 struct Cell {
     bool exists;
     bool links[6];
@@ -30,6 +32,7 @@ struct Cell {
 };
 
 std::ostream& operator<<(std::ostream& os, Cell const& cell);
+std::ostream& operator<<(std::ostream& os, CellCoords const& coords);
 
 
 #endif // CELL_H

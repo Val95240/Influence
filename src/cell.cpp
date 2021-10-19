@@ -2,6 +2,10 @@
 #include "cell.h"
 
 
+bool operator==(CellCoords const& a, CellCoords const& b) {
+    return (a.x == b.x) && (a.y == b.y);
+}
+
 Cell::Cell() {
     reset();
 }
@@ -99,5 +103,10 @@ std::ostream& operator<<(std::ostream& os, Cell const& cell) {
     os << cell.links[5] << "), ";
     os << "[" << cell.value << "/" << (cell.limit_12 ? "12" : " 8") << "]";
     os << "[T:" << cell.team << "]";
+    return os;
+}
+
+std::ostream& operator<<(std::ostream& os, CellCoords const& coords) {
+    os << "(" << coords.x << ", " << coords.y << ")";
     return os;
 }

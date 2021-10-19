@@ -1,9 +1,8 @@
 
 #include "map_drawer.h"
 
-#include <math.h>
-
 #include <algorithm>
+#include <cmath>
 
 #include "cell.h"
 
@@ -13,7 +12,7 @@ void MapDrawer::set_map(Map const& map) {
     reset_active_cells();
 }
 
-void MapDrawer::draw_map(CellCoords focus_coords, bool attack_phase, int nb_cells_to_grow) {
+void MapDrawer::draw_map(CellCoords focus_coords, int phase, int nb_cells_to_grow) {
     SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
     SDL_RenderClear(renderer);
 
@@ -29,16 +28,18 @@ void MapDrawer::draw_map(CellCoords focus_coords, bool attack_phase, int nb_cell
     draw_links();
 
     std::string banner_text;
-    if (attack_phase) {
+    if (phase == 0) {  // Attack phase
         if (no_active_cell())
             banner_text = "Touch here to end attack";
         else if (focus_coords.x == -1 || !active_cells[focus_coords.x][focus_coords.y])
             banner_text = "Touch a cell of your color\n(or touch here to end attack)";
         else
             banner_text = "Touch a nearby cell to attack\n(or touch here to end attack)";
-    } else {
+    } else if (phase == 1) {  // Growth phase
         std::string nb_cells = std::to_string(nb_cells_to_grow);
         banner_text = "Touch a cell to grow (" + nb_cells + ")\n(or touch here to end turn)";
+    } else {  // Enemy phase
+        banner_text = "Wait for your turn...";
     }
 
     draw_banner(banner_text);

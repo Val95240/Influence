@@ -1,7 +1,7 @@
 
 #include "editor_window.h"
 
-#include <stdio.h>
+#include <cstdio>
 
 #include "cell.h"
 

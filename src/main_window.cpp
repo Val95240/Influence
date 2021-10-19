@@ -18,6 +18,8 @@ bool MainWindow::init() {
         return false;
 
     map_drawer = new MapDrawer(window, renderer, font, font_small, 100);
+    phase = Phase::ATTACK;
+    active_player = 1;
     return true;
 }
 
@@ -29,6 +31,14 @@ void MainWindow::run(Arena& arena) {
     bool quit = false;
     SDL_Event event;
     while (!quit) {
+
+        // Enemy's turn
+        if (active_player > 1) {
+            if (arena.play_agent_turn(active_player))
+                end_turn(arena);
+            modified = true;
+        }
+
         while (SDL_PollEvent(&event) != 0) {
             if (event.type == SDL_QUIT)
                 quit = true;
@@ -37,7 +47,7 @@ void MainWindow::run(Arena& arena) {
                 if (event.key.keysym.sym == SDLK_q)
                     quit = true;
 
-                if (event.key.keysym.sym == SDLK_SPACE) {
+                if (active_player == 1 && event.key.keysym.sym == SDLK_SPACE) {
                     banner_action(arena);
                     modified = true;
                 }
@@ -46,7 +56,7 @@ void MainWindow::run(Arena& arena) {
             else if (event.type == SDL_WINDOWEVENT && event.window.event == SDL_WINDOWEVENT_SIZE_CHANGED)
                 modified = true;
 
-            else if (event.type == SDL_MOUSEBUTTONDOWN) {
+            else if (active_player == 1 && event.type == SDL_MOUSEBUTTONDOWN) {
                 int x, y;
                 SDL_GetMouseState(&x, &y);
 
@@ -57,32 +67,42 @@ void MainWindow::run(Arena& arena) {
 
         if (modified) {
             modified = false;
-            map_drawer->draw_map(focus_coords, attack_phase, nb_cells_to_grow);
+            map_drawer->draw_map(focus_coords, phase, nb_cells_to_grow);
 
             SDL_RenderPresent(renderer);
         }
 
-        SDL_Delay(100);
+        if (active_player == 1)
+            SDL_Delay(100);
+    }
+}
+
+void MainWindow::end_turn(Arena const& arena) {
+    if (active_player == 1)
+        std::cout << "End of turn" << std::endl;
+    active_player += 1;
+    phase = Phase::ENEMY;
+
+    if (active_player > arena.nb_teams) {
+        phase = Phase::ATTACK;
+        active_player = 1;
     }
 }
 
 void MainWindow::banner_action(Arena& arena) {
-    if (attack_phase) {
-        attack_phase = false;
+    if (phase == Phase::ATTACK) {
+        phase = Phase::GROWTH;
         nb_cells_to_grow = arena.count_cells(1);
         int growth_limit = arena.get_growth_limit(1);
         if (nb_cells_to_grow > growth_limit)
             nb_cells_to_grow = growth_limit;
 
-        if (nb_cells_to_grow == 0) {
-            attack_phase = true;
-            std::cout << "End of turn" << std::endl;
-        }
+        if (nb_cells_to_grow == 0)
+            end_turn(arena);
 
     } else {
-        attack_phase = true;
         arena.grow_random_cells(1, nb_cells_to_grow);
-        std::cout << "End of turn" << std::endl;
+        end_turn(arena);
     }
 }
 
@@ -99,7 +119,7 @@ void MainWindow::click_callback(Arena& arena, int x, int y) {
     }
 
     CellCoords cell_coords = map_drawer->get_cell_at_coords(x, y);
-    if (attack_phase) {
+    if (phase == Phase::ATTACK) {
         // Click on a cell of player's color
         if (cell_coords.x != -1 && arena.grid[cell_coords.x][cell_coords.y].team == 1)
             focus_coords = cell_coords;
@@ -112,15 +132,14 @@ void MainWindow::click_callback(Arena& arena, int x, int y) {
 
         last_clicked = focus_coords;
 
-    } else {
-        if (cell_coords.x > 0) {
-            if (arena.grow_cell(cell_coords))
-                nb_cells_to_grow--;
+    } else {  // Player's growth phase
+        if (cell_coords.x == -1)
+            return;
 
-            if (nb_cells_to_grow == 0) {
-                std::cout << "End of player turn" << std::endl;
-                attack_phase = true;
-            }
-        }
+        if (arena.grow_cell(1, cell_coords))
+            nb_cells_to_grow--;
+
+        if (nb_cells_to_grow == 0)
+            end_turn(arena);
     }
 }
