@@ -197,7 +197,28 @@ void EditorWindow::edit_key_callback(Map& map, SDL_Keycode code) {
         focus_coords.y--;
 }
 
-void EditorWindow::click_callback(Map& map, int x, int y) {
+void EditorWindow::banner_action(Map const& map, BannerAction action) {
+    switch (action) {
+        case BannerAction::MODIFY_WIDTH:
+        case BannerAction::MODIFY_HEIGHT:
+        case BannerAction::MODIFY_NB_TEAMS:
+            start_input(action);
+            break;
+
+        case BannerAction::SAVE:
+            save_map(map);
+            break;
+
+        case BannerAction::SAVE_AS:
+            save_map_as(map);
+            break;
+
+        case BannerAction::NOOP:
+            break;
+    }
+}
+
+void EditorWindow::click_callback(Map const& map, int x, int y) {
     int win_width, win_height;
     SDL_GetWindowSize(window, &win_width, &win_height);
 
@@ -211,24 +232,7 @@ void EditorWindow::click_callback(Map& map, int x, int y) {
     // Click on banner
     if (y > win_height - BANNER_HEIGHT) {
         BannerAction action = map_editor->click_banner(x, y);
-        switch (action) {
-            case BannerAction::MODIFY_WIDTH:
-            case BannerAction::MODIFY_HEIGHT:
-            case BannerAction::MODIFY_NB_TEAMS:
-                start_input(action);
-                break;
-
-            case BannerAction::SAVE:
-                save_map(map);
-                break;
-
-            case BannerAction::SAVE_AS:
-                save_map_as(map);
-                break;
-
-            case BannerAction::NOOP:
-                break;
-        }
+        banner_action(map, action);
     }
 
     CellCoords cell_coords = map_editor->get_cell_at_coords(x, y);

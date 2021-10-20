@@ -24,9 +24,9 @@ enum BannerAction {
 
 class MapEditor : public AbstractDrawer {
     public:
-        BannerAction curr_action = BannerAction::NOOP;
-
         using AbstractDrawer::AbstractDrawer;
+
+        BannerAction curr_action = BannerAction::NOOP;
 
         BannerAction click_banner(int x, int y);
         void modify(BannerAction action);
@@ -38,8 +38,8 @@ class MapEditor : public AbstractDrawer {
 
         void get_button_pos(SDL_Rect pos[4]) const;
 
-        void draw_banner(std::string banner_text) const;
-        void draw_cell(CellCoords cell_coords, bool focus) const;
+        void draw_banner(std::string banner_text) const override;
+        void draw_cell(CellCoords cell_coords, bool focus) const override;
 };
 
 

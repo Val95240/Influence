@@ -18,7 +18,7 @@ void Map::resize(int new_height, int new_width) {
     for (int i=0; i<new_height; i++) {
         std::vector<Cell> row;
         for (int j=0; j<new_width; j++) {
-            if (i % 2 == 1 && j == width-1)
+            if (i % 2 == 1 && j == new_width-1)
                 row.push_back(Cell());
             else if (i < height && j < width)
                 row.push_back(grid[i][j]);

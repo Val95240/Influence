@@ -7,11 +7,11 @@
 
 #include "map.h"
 
+
 class AbstractAgent;
 
 class Arena : public Map {
     public:
-        using Map::Map;
         Arena(std::string const& path, std::vector<int> agent_levels={});
 
         bool attack(CellCoords src, CellCoords dst);
@@ -22,6 +22,7 @@ class Arena : public Map {
 
     private:
         std::vector<AbstractAgent*> agents;
+        std::vector<bool> dead_agents;
         int last_player_id = 1;
         bool attack_phase = true;
         int nb_cells_to_grow;

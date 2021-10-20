@@ -6,6 +6,8 @@ AbstractDrawer::AbstractDrawer(SDL_Window* window, SDL_Renderer* renderer, TTF_F
     window(window), renderer(renderer), font(font), font_small(font_small), banner_height(banner_height) {
 }
 
+AbstractDrawer::~AbstractDrawer() { }
+
 void AbstractDrawer::set_map(Map const& map) {
     this->map = &map;
 }
@@ -18,7 +20,7 @@ CellCoords AbstractDrawer::get_cell_at_coords(int x, int y) const {
     for (int i=0; i<map->height; i++) {
         for (int j=0; j<map->width; j++) {
             SDL_Point cell_pos = get_cell_pos({i, j});
-            int radius = (map->grid[i][j].limit_12 ? RADIUS_12 : RADIUS);
+            int radius = (map->grid[i][j].limit_12 ? RADIUS_12 : RADIUS_8);
             double dist = (cell_pos.x - x) * (cell_pos.x - x) + (cell_pos.y - y) * (cell_pos.y - y);
             if (dist < radius*radius)
                 return {i, j};
@@ -51,13 +53,33 @@ SDL_Point AbstractDrawer::get_cell_pos(CellCoords cell_coords) const {
 
 SDL_Point AbstractDrawer::get_cell_pos(CellCoords cell_coords, int dir) const {
     SDL_Point cell_pos = get_cell_pos(cell_coords);
-    int radius = (map->grid[cell_coords.x][cell_coords.y].limit_12 ? RADIUS_12 : RADIUS);
+    int radius = (map->grid[cell_coords.x][cell_coords.y].limit_12 ? RADIUS_12 : RADIUS_8);
 
     cell_pos.x += radius * HEX_DX[dir-1];
     cell_pos.y += radius * HEX_DY[dir-1];
 
     return cell_pos;
 }
+
+
+void AbstractDrawer::draw_map(CellCoords focus_coords, std::string banner_text) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
+    SDL_RenderClear(renderer);
+
+    for (int i=0; i<map->height; i++) {
+        for (int j=0; j<map->width; j++) {
+            if (i % 2 == 1 && j == map->width-1)
+                continue;
+            bool focus = (i == focus_coords.x && j == focus_coords.y);
+            draw_cell({i, j}, focus);
+        }
+    }
+
+    draw_links();
+
+    draw_banner(banner_text);
+}
+
 
 void AbstractDrawer::draw_banner_lines(int win_width, int win_height) const {
     std::vector<double> percents = map->get_team_percent();
@@ -152,26 +174,29 @@ bool AbstractDrawer::draw_text_center(std::string text, SDL_Rect pos, SDL_Color 
     return true;
 }
 
-void AbstractDrawer::draw_cell(CellCoords cell_coords, int radius, int value, uint32_t color, bool limit_12) const {
+void AbstractDrawer::draw_cell(CellCoords cell_coords, uint32_t color, bool display_empty) const {
+    Cell const& cell = map->grid[cell_coords.x][cell_coords.y];
     SDL_Point cell_pos = get_cell_pos(cell_coords);
-
-    // Outer hex (cell outline)
+    int radius = (cell.limit_12 ? RADIUS_12 : RADIUS_8);
     short int hex_x[6], hex_y[6];
     compute_hex_coords(radius, cell_pos, hex_x, hex_y);
-    polygonColor(renderer, hex_x, hex_y, 6, color | 0xFF000000);
 
-    if (value < 0)
+    // Outer hex (cell outline)
+    if (cell.exists || display_empty)
+        polygonColor(renderer, hex_x, hex_y, 6, color | 0xFF000000);
+
+    if (!cell.exists)
         return;
 
     // Inner hex
-    double percent_value = value / (limit_12 ? 12.0 : 8.0);
+    double percent_value = cell.value / (cell.limit_12 ? 12.0 : 8.0);
     int inner_radius = (INNER_MIN_RADIUS + (1 - INNER_MIN_RADIUS) * percent_value) * radius;
     compute_hex_coords(inner_radius, cell_pos, hex_x, hex_y);
     filledPolygonColor(renderer, hex_x, hex_y, 6, color | 0xFF000000);
 
     // Text value
     TTF_SetFontStyle(font, TTF_STYLE_BOLD);
-    std::string text_value = std::to_string(value);
+    std::string text_value = std::to_string(cell.value);
     SDL_Rect text_pos;
     text_pos.x = cell_pos.x - 5 * text_value.length();
     text_pos.y = cell_pos.y - 10;

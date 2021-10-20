@@ -27,8 +27,8 @@ class MapDrawer : public AbstractDrawer {
 
         void reset_active_cells();
         void mark_active_cells();
-        void draw_banner(std::string banner_text) const;
-        void draw_cell(CellCoords cell_coords, bool focus) const;
+        void draw_banner(std::string banner_text) const override;
+        void draw_cell(CellCoords cell_coords, bool focus) const override;
 };
 
 

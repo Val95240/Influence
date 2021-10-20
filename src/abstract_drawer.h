@@ -10,7 +10,7 @@
 #include "map.h"
 
 
-int const RADIUS = 22;
+int const RADIUS_8 = 22;
 int const RADIUS_12 = 28;
 double const INNER_MIN_RADIUS = 0.55;
 double const SQRT_3_2 = 0.8660254038;
@@ -26,6 +26,7 @@ uint32_t const FOCUS_COLOR[6] = {0xA0A0A0, 0xFFE070, 0x20E020, 0x50FFFF, 0x9090F
 class AbstractDrawer {
     public:
         AbstractDrawer(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font, TTF_Font* font_small, int banner_height);
+        virtual ~AbstractDrawer();
 
         void set_map(Map const& map);
 
@@ -47,11 +48,15 @@ class AbstractDrawer {
         SDL_Point get_cell_pos(CellCoords cell_coords) const;
         SDL_Point get_cell_pos(CellCoords cell_coords, int dir) const;
 
+        virtual void draw_map(CellCoords focus_coords, std::string banner_text);
+        virtual void draw_banner(std::string banner_text) const = 0;
+        virtual void draw_cell(CellCoords cell_coords, bool focus) const = 0;
+
         void draw_banner_lines(int win_width, int win_height) const;
         bool draw_text(std::string text, SDL_Rect pos, SDL_Color color, bool small=false) const;
         bool draw_text(std::string text, int y, SDL_Color color, bool small=false) const;
         bool draw_text_center(std::string text, SDL_Rect pos, SDL_Color color) const;
-        void draw_cell(CellCoords cell_coords, int radius, int value, uint32_t color, bool limit_12) const;
+        void draw_cell(CellCoords cell_coords, uint32_t color, bool display_empty=false) const;
         void draw_links() const;
         void draw_link(CellCoords cell_coords, int dir) const;
 };

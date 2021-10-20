@@ -5,16 +5,17 @@
 #include "utils.h"
 
 
-Arena::Arena(std::string const& path, std::vector<int> agent_levels) : Map(path) {
+Arena::Arena(std::string const& path, std::vector<int> agent_levels)
+    : Map(path), dead_agents(nb_teams, false)
+{
     if (!agent_levels.empty() && agent_levels.size() != (size_t)nb_teams) {
         std::cerr << "Agent difficulties does not match number of teams" << std::endl;
         agent_levels.clear();
     }
 
     if (agent_levels.empty()) {
-        for (int i=0; i<nb_teams; i++) {
+        for (int i=0; i<nb_teams; i++)
             agents.push_back(new RandomAgent(*this, i+2));
-        }
         return;
     }
 
@@ -111,6 +112,13 @@ void Arena::grow_random_cells(int team, int nb_cells) {
 }
 
 bool Arena::play_agent_turn(int player_id) {
+    if (dead_agents[player_id-2]) {
+        return true;
+    } else if (count_cells(player_id) == 0) {
+        dead_agents[player_id-2] = true;
+        return true;
+    }
+
     if (player_id != last_player_id) {
         agents[player_id-2]->init_turn();
         attack_phase = true;
@@ -121,7 +129,8 @@ bool Arena::play_agent_turn(int player_id) {
         auto [src, dst] = agents[player_id-2]->attack();
         attack(src, dst);
         attack_phase = agents[player_id-2]->end_attack();
-        nb_cells_to_grow = count_cells(player_id);
+        if (!attack_phase)
+            nb_cells_to_grow = std::min(count_cells(player_id), get_growth_limit(player_id));
 
     } else {
         CellCoords cell_coords = agents[player_id-2]->grow(nb_cells_to_grow--);

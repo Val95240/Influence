@@ -92,10 +92,7 @@ void MainWindow::end_turn(Arena const& arena) {
 void MainWindow::banner_action(Arena& arena) {
     if (phase == Phase::ATTACK) {
         phase = Phase::GROWTH;
-        nb_cells_to_grow = arena.count_cells(1);
-        int growth_limit = arena.get_growth_limit(1);
-        if (nb_cells_to_grow > growth_limit)
-            nb_cells_to_grow = growth_limit;
+        nb_cells_to_grow = std::min(arena.count_cells(1), arena.get_growth_limit(1));
 
         if (nb_cells_to_grow == 0)
             end_turn(arena);

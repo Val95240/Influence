@@ -1,14 +1,16 @@
 
-- [X] Banner bottom screen
-  + [X] Phase name
-  + [X] Click to setup next phase
+# Now
 
-- [X] `MapEditor` class
-- [ ] `Agent` class
-  + [ ] `Map::get_state()`, `Map::act(action)`, ...
+- [ ] MapEditor change TextInput by W/w;E/e;N/n for [increasing/decreasing] width/height/nb_teams
+- [ ] Victory/Defeat management
+
 - [ ] `MapGenerator` class
   + [ ] Params: size, symmetry, dropout
   + [ ] Equal distance between initial cell
+
+- [ ] Fog Of War
+
+- [ ] More Agents
 
 
 # Bugs

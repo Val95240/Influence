@@ -31,7 +31,8 @@ class EditorWindow : public AbstractWindow {
         void modify_value(Map& map);
 
         void edit_key_callback(Map& map, SDL_Keycode code);
-        void click_callback(Map& map, int x, int y);
+        void banner_action(Map const& map, BannerAction action);
+        void click_callback(Map const& map, int x, int y);
         void save_map(Map const& map);
         void save_map_as(Map const& map);
 };

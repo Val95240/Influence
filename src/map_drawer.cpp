@@ -8,24 +8,12 @@
 
 
 void MapDrawer::set_map(Map const& map) {
-    this->map = &map;
+    AbstractDrawer::set_map(map);
     reset_active_cells();
 }
 
 void MapDrawer::draw_map(CellCoords focus_coords, int phase, int nb_cells_to_grow) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 0xFF);
-    SDL_RenderClear(renderer);
-
     mark_active_cells();
-
-    for (int i=0; i<map->height; i++) {
-        for (int j=0; j<map->width; j++) {
-            bool focus = (i == focus_coords.x && j == focus_coords.y);
-            draw_cell({i, j}, focus);
-        }
-    }
-
-    draw_links();
 
     std::string banner_text;
     if (phase == 0) {  // Attack phase
@@ -42,7 +30,7 @@ void MapDrawer::draw_map(CellCoords focus_coords, int phase, int nb_cells_to_gro
         banner_text = "Wait for your turn...";
     }
 
-    draw_banner(banner_text);
+    AbstractDrawer::draw_map(focus_coords, banner_text);
 }
 
 bool MapDrawer::no_active_cell() const {
@@ -118,10 +106,6 @@ void MapDrawer::draw_banner(std::string banner_text) const {
 
 void MapDrawer::draw_cell(CellCoords cell_coords, bool focus) const {
     Cell const& cell = map->grid[cell_coords.x][cell_coords.y];
-    if (!cell.exists)
-        return;
-
-    int radius = (cell.limit_12 ? RADIUS_12 : RADIUS);
 
     uint32_t color = TEAM_COLORS[cell.team];
     if (cell.team == 1) {
@@ -134,5 +118,5 @@ void MapDrawer::draw_cell(CellCoords cell_coords, bool focus) const {
             color = FOCUS_COLOR[1];
     }
 
-    AbstractDrawer::draw_cell(cell_coords, radius, cell.value, color, cell.limit_12);
+    AbstractDrawer::draw_cell(cell_coords, color);
 }
