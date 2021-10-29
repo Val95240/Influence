@@ -1,12 +1,12 @@
 
-#include "map_generator.h"
+#include "map_generator.hpp"
 
 #include <fstream>
 #include <iostream>
 #include <sstream>
 
-#include "cell.h"
-#include "map.h"
+#include "cell.hpp"
+#include "map.hpp"
 
 
 bool MapGenerator::from_str_file(std::string const& src, std::string const& dst) {

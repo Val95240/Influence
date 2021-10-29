@@ -6,8 +6,8 @@
 #include <string>
 #include <vector>
 
-#include "cell.h"
-#include "map_generator.h"
+#include "cell.hpp"
+#include "map_generator.hpp"
 
 
 using Grid = std::vector<std::vector<Cell>>;

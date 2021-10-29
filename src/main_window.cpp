@@ -1,6 +1,6 @@
 
 
-#include "main_window.h"
+#include "main_window.hpp"
 
 #include <SDL.h>
 #include <SDL_ttf.h>

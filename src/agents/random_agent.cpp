@@ -1,9 +1,9 @@
 
-#include "agents/random_agent.h"
+#include "agents/random_agent.hpp"
 
 #include <algorithm>
 
-#include "utils.h"
+#include "utils.hpp"
 
 
 RandomAgent::RandomAgent(Arena const& arena, int team, double attack_proba)

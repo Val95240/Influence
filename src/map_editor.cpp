@@ -1,5 +1,5 @@
 
-#include "map_editor.h"
+#include "map_editor.hpp"
 
 
 BannerAction MapEditor::click_banner(int x, int y) {

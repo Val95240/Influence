@@ -1,8 +1,8 @@
 
-#include "arena.h"
+#include "arena.hpp"
 
-#include "agents/random_agent.h"
-#include "utils.h"
+#include "agents/random_agent.hpp"
+#include "utils.hpp"
 
 
 Arena::Arena(std::string const& path, std::vector<int> agent_levels)

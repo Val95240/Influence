@@ -2,7 +2,7 @@
 #include <iostream>
 #include <filesystem>
 
-#include "map_generator.h"
+#include "map_generator.hpp"
 
 
 int main(int argc, char* argv[]) {

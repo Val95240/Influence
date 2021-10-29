@@ -6,8 +6,8 @@
 #include <SDL_ttf.h>
 #include <SDL2_gfxPrimitives.h>
 
-#include "cell.h"
-#include "map.h"
+#include "cell.hpp"
+#include "map.hpp"
 
 
 int const RADIUS_8 = 22;

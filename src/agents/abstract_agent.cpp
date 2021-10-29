@@ -1,5 +1,5 @@
 
-#include "agents/abstract_agent.h"
+#include "agents/abstract_agent.hpp"
 
 
 AbstractAgent::AbstractAgent(Arena const& arena, int team) : arena(arena), team(team) { }

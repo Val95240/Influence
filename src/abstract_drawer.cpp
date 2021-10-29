@@ -1,5 +1,5 @@
 
-#include "abstract_drawer.h"
+#include "abstract_drawer.hpp"
 
 
 AbstractDrawer::AbstractDrawer(SDL_Window* window, SDL_Renderer* renderer, TTF_Font* font, TTF_Font* font_small, int banner_height) :

@@ -5,7 +5,7 @@
 #include <SDL.h>
 #include <SDL_ttf.h>
 
-#include "map.h"
+#include "map.hpp"
 
 
 class AbstractWindow {

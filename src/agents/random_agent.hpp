@@ -4,9 +4,9 @@
 
 #include <vector>
 
-#include "arena.h"
-#include "cell.h"
-#include "agents/abstract_agent.h"
+#include "arena.hpp"
+#include "cell.hpp"
+#include "agents/abstract_agent.hpp"
 
 
 class RandomAgent : public AbstractAgent {

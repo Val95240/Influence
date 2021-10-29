@@ -8,8 +8,8 @@
 #include <SDL_ttf.h>
 #include <SDL2_gfxPrimitives.h>
 
-#include "abstract_drawer.h"
-#include "cell.h"
+#include "abstract_drawer.hpp"
+#include "cell.hpp"
 
 
 enum BannerAction {

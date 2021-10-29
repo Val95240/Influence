@@ -6,7 +6,7 @@ CFLAGS := -std=c++17 -Wall -Wextra -Werror -Wno-unused-parameter
 CFLAGS += -I/usr/include/SDL2 -I/usr/local/include/SDL2 -I./src
 LFLAGS := -lSDL2 -lSDL2_gfx -lSDL2_ttf
 
-HEADERS := $(shell find src/ -name "*.h")
+HEADERS := $(shell find src/ -name "*.hpp")
 SOURCES := $(filter-out src/main_generate_map.cpp, $(shell find src/ -name "*.cpp"))
 OBJECTS := $(SOURCES:src/%.cpp=build/%.o)
 
@@ -33,3 +33,4 @@ build/%.o: src/%.cpp $(HEADERS)
 
 clean:
 	rm -rf build/
+	rm main generate_map

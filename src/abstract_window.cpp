@@ -1,5 +1,5 @@
 
-#include "abstract_window.h"
+#include "abstract_window.hpp"
 
 #include <cstdio>
 

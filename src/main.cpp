@@ -2,10 +2,10 @@
 #include <filesystem>
 #include <iostream>
 
-#include "abstract_window.h"
-#include "arena.h"
-#include "editor_window.h"
-#include "main_window.h"
+#include "abstract_window.hpp"
+#include "arena.hpp"
+#include "editor_window.hpp"
+#include "main_window.hpp"
 
 
 int main(int argc, char* argv[]) {

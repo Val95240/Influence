@@ -2,10 +2,10 @@
 #ifndef MAIN_WINDOW_H
 #define MAIN_WINDOW_H
 
-#include "abstract_window.h"
-#include "arena.h"
-#include "cell.h"
-#include "map_drawer.h"
+#include "abstract_window.hpp"
+#include "arena.hpp"
+#include "cell.hpp"
+#include "map_drawer.hpp"
 
 
 enum Phase { ATTACK, GROWTH, ENEMY };

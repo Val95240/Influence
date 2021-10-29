@@ -2,8 +2,8 @@
 #ifndef ABSTRACT_AGENT_H
 #define ABSTRACT_AGENT_H
 
-#include "arena.h"
-#include "cell.h"
+#include "arena.hpp"
+#include "cell.hpp"
 
 
 class AbstractAgent {

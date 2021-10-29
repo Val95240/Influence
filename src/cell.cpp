@@ -1,5 +1,5 @@
 
-#include "cell.h"
+#include "cell.hpp"
 
 
 bool operator==(CellCoords const& a, CellCoords const& b) {

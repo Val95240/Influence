@@ -1,9 +1,9 @@
 
-#include "editor_window.h"
+#include "editor_window.hpp"
 
 #include <cstdio>
 
-#include "cell.h"
+#include "cell.hpp"
 
 
 int const BANNER_HEIGHT = 150;

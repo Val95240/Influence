@@ -1,10 +1,10 @@
 
-#include "map_drawer.h"
+#include "map_drawer.hpp"
 
 #include <algorithm>
 #include <cmath>
 
-#include "cell.h"
+#include "cell.hpp"
 
 
 void MapDrawer::set_map(Map const& map) {

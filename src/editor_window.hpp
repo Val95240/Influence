@@ -4,10 +4,10 @@
 
 #include <string>
 
-#include "abstract_window.h"
-#include "cell.h"
-#include "map.h"
-#include "map_editor.h"
+#include "abstract_window.hpp"
+#include "cell.hpp"
+#include "map.hpp"
+#include "map_editor.hpp"
 
 
 class EditorWindow : public AbstractWindow {

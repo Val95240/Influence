@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 
-#include "map.h"
+#include "map.hpp"
 
 
 class AbstractAgent;

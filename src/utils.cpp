@@ -1,5 +1,5 @@
 
-#include "utils.h"
+#include "utils.hpp"
 
 #include <cmath>
 #include <cstdlib>

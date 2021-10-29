@@ -8,9 +8,9 @@
 #include <SDL_ttf.h>
 #include <SDL2_gfxPrimitives.h>
 
-#include "abstract_drawer.h"
-#include "cell.h"
-#include "map.h"
+#include "abstract_drawer.hpp"
+#include "cell.hpp"
+#include "map.hpp"
 
 
 class MapDrawer : public AbstractDrawer {
