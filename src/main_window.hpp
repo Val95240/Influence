@@ -30,6 +30,9 @@ class MainWindow : public AbstractWindow {
         void end_turn(Arena const& arena);
         void banner_action(Arena& arena);
         void click_callback(Arena& arena, int x, int y);
+
+        void game_over(bool won);
+        void wait_for_key() const;
 };
 
 

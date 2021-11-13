@@ -33,6 +33,18 @@ void MapDrawer::draw_map(CellCoords focus_coords, int phase, int nb_cells_to_gro
     AbstractDrawer::draw_map(focus_coords, banner_text);
 }
 
+void MapDrawer::draw_gameover(bool won) {
+    std::string banner_text;
+    if (won)
+        banner_text = "You win !";
+    else
+        banner_text = "Oh no, you lose !";
+
+    banner_text += "\nInput any key or click here to end game...";
+    AbstractDrawer::draw_map({0, 0}, banner_text);
+}
+
+
 bool MapDrawer::no_active_cell() const {
     for (int i=0; i<map->height; i++) {
         for (int j=0; j<map->width; j++) {
@@ -51,7 +63,6 @@ bool MapDrawer::no_active_cell() const {
     }
     return true;
 }
-
 
 void MapDrawer::reset_active_cells() {
     active_cells.clear();

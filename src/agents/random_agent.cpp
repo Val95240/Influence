@@ -13,14 +13,19 @@ RandomAgent::RandomAgent(Arena const& arena, int team, double attack_proba)
 
 void RandomAgent::init_turn() {
     passive_cells.clear();
-    for (CellCoords coords : find_border()) {
+    for (CellCoords coords : find_active_border()) {
         if (utils::random_chance(1.0 - attack_proba))
             passive_cells.push_back(coords);
     }
 }
 
 std::pair<CellCoords, CellCoords> RandomAgent::attack() {
-    std::vector<CellCoords> border_cells = find_border();
+    std::vector<CellCoords> border_cells = find_active_border();
+
+    // No cells ready to attack (on border with value > 1)
+    if (border_cells.empty())
+        return {{-1, -1}, {-1, -1}};
+
     border_cells.erase(std::remove_if(border_cells.begin(),
                                       border_cells.end(),
                                       [this](CellCoords const& coord) { return this->is_passive(coord); }),
@@ -33,7 +38,11 @@ std::pair<CellCoords, CellCoords> RandomAgent::attack() {
 }
 
 bool RandomAgent::end_attack() const {
-    std::vector<CellCoords> border_cells = find_border();
+    std::vector<CellCoords> border_cells = find_active_border();
+    // No cells ready to attack (on border with value > 1)
+    if (border_cells.empty())
+        return true;
+
     border_cells.erase(std::remove_if(border_cells.begin(),
                                       border_cells.end(),
                                       [this](CellCoords const& coord) { return this->is_passive(coord); }),

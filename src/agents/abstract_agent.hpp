@@ -18,10 +18,11 @@ class AbstractAgent {
 
     protected:
         Arena const& arena;
-        int team;
+        int const team;
 
         std::vector<CellCoords> find_cells() const;
         std::vector<CellCoords> find_border() const;
+        std::vector<CellCoords> find_active_border() const;
         std::vector<CellCoords> find_open_neighs(CellCoords coords) const;
 };
 

@@ -28,11 +28,26 @@ std::vector<CellCoords> AbstractAgent::find_border() const {
     return border_cells;
 }
 
+std::vector<CellCoords> AbstractAgent::find_active_border() const {
+    std::vector<CellCoords> cells_coords = find_cells();
+    std::vector<CellCoords> active_border_cells;
+    for (CellCoords coords : cells_coords) {
+        if (!(arena.grid[coords.x][coords.y].value > 1))
+            continue;
+
+        std::vector<CellCoords> open_neighs = find_open_neighs(coords);
+        if (!open_neighs.empty())
+            active_border_cells.push_back(coords);
+    }
+
+    return active_border_cells;
+}
+
 std::vector<CellCoords> AbstractAgent::find_open_neighs(CellCoords coords) const {
     std::vector<CellCoords> open_neighs;
     for (int dir=1; dir<7; dir++) {
         auto [neigh_x, neigh_y] = arena.get_neighbour_coords(coords, dir);
-        if (neigh_x > -1 && arena.grid[neigh_x][neigh_y].team != team)
+        if (neigh_x > -1 && arena.grid[neigh_x][neigh_y].exists && arena.grid[neigh_x][neigh_y].team != team)
             open_neighs.push_back({neigh_x, neigh_y});
     }
     return open_neighs;

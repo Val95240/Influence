@@ -19,6 +19,7 @@ class Arena : public Map {
         void grow_random_cells(int team, int nb_cells);
 
         bool play_agent_turn(int player_id);
+        bool agent_has_won() const;
 
     private:
         std::vector<AbstractAgent*> agents;

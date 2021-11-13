@@ -6,16 +6,19 @@
 
 
 Arena::Arena(std::string const& path, std::vector<int> agent_levels)
-    : Map(path), dead_agents(nb_teams, false)
+    : Map(path), dead_agents(nb_teams+1, false)
 {
+    for (int team=1; team<nb_teams+1; team++)
+        dead_agents[team] = (count_cells(team) == 0);
+
     if (!agent_levels.empty() && agent_levels.size() != (size_t)nb_teams) {
         std::cerr << "Agent difficulties does not match number of teams" << std::endl;
         agent_levels.clear();
     }
 
     if (agent_levels.empty()) {
-        for (int i=0; i<nb_teams; i++)
-            agents.push_back(new RandomAgent(*this, i+2));
+        for (int team=0; team<nb_teams; team++)
+            agents.push_back(new RandomAgent(*this, team+2));
         return;
     }
 
@@ -43,6 +46,8 @@ bool Arena::attack(CellCoords src_coords, CellCoords dst_coords) {
     if (utils::distance(src_coords, dst_coords) > 1)
         return false;
 
+    int dst_team = dst.team;
+
     if (src.value < dst.value - 1) {
         dst.value -= src.value;
         src.value = 1;
@@ -51,6 +56,7 @@ bool Arena::attack(CellCoords src_coords, CellCoords dst_coords) {
         dst.value = src.value - std::max(dst.value, 1);
         src.value = 1;
         dst.team = src.team;
+        dead_agents[dst_team] = (count_cells(dst_team) == 0);
 
         if (!dst.limit_12 && dst.value > 8) {
             src.value += dst.value - 9;
@@ -63,6 +69,7 @@ bool Arena::attack(CellCoords src_coords, CellCoords dst_coords) {
         dst.value = 1;
         if (utils::random_chance(proba))
             dst.team = src.team;
+        dead_agents[dst_team] = (count_cells(dst_team) == 0);
     }
 
     return true;
@@ -112,10 +119,12 @@ void Arena::grow_random_cells(int team, int nb_cells) {
 }
 
 bool Arena::play_agent_turn(int player_id) {
-    if (dead_agents[player_id-2]) {
+    if (dead_agents[player_id]) {
+        last_player_id = player_id;
         return true;
     } else if (count_cells(player_id) == 0) {
-        dead_agents[player_id-2] = true;
+        last_player_id = player_id;
+        dead_agents[player_id] = true;
         return true;
     }
 
@@ -127,8 +136,15 @@ bool Arena::play_agent_turn(int player_id) {
 
     if (attack_phase) {
         auto [src, dst] = agents[player_id-2]->attack();
-        attack(src, dst);
-        attack_phase = agents[player_id-2]->end_attack();
+
+        if (src.x == -1) {
+            attack_phase = false;
+        } else {
+            attack(src, dst);
+            attack_phase = !agents[player_id-2]->end_attack();
+        }
+
+        // Update cell count
         if (!attack_phase)
             nb_cells_to_grow = std::min(count_cells(player_id), get_growth_limit(player_id));
 
@@ -140,4 +156,12 @@ bool Arena::play_agent_turn(int player_id) {
     }
 
     return false;
+}
+
+bool Arena::agent_has_won() const {
+    for (int team=2; team<nb_teams+1; team++) {
+        if (!dead_agents[team])
+            return false;
+    }
+    return true;
 }

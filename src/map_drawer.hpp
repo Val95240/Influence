@@ -19,12 +19,12 @@ class MapDrawer : public AbstractDrawer {
 
         void set_map(Map const& map);
         void draw_map(CellCoords focus_coords, int phase, int nb_cells_to_grow);
-
-        bool no_active_cell() const;
+        void draw_gameover(bool won);
 
     private:
         std::vector<std::vector<bool>> active_cells;
 
+        bool no_active_cell() const;
         void reset_active_cells();
         void mark_active_cells();
         void draw_banner(std::string banner_text) const override;

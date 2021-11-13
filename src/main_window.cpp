@@ -34,8 +34,15 @@ void MainWindow::run(Arena& arena) {
 
         // Enemy's turn
         if (active_player > 1) {
-            if (arena.play_agent_turn(active_player))
+            if (arena.play_agent_turn(active_player)) {
+                // Game over
+                if (arena.count_cells(1) == 0) {
+                    game_over(false);
+                    return;
+                }
+
                 end_turn(arena);
+            }
             modified = true;
         }
 
@@ -61,6 +68,10 @@ void MainWindow::run(Arena& arena) {
                 SDL_GetMouseState(&x, &y);
 
                 click_callback(arena, x, y);
+                if (arena.agent_has_won()) {
+                    game_over(true);
+                    return;
+                }
                 modified = true;
             }
         }
@@ -78,14 +89,12 @@ void MainWindow::run(Arena& arena) {
 }
 
 void MainWindow::end_turn(Arena const& arena) {
-    if (active_player == 1)
-        std::cout << "End of turn" << std::endl;
-    active_player += 1;
-    phase = Phase::ENEMY;
-
-    if (active_player > arena.nb_teams) {
-        phase = Phase::ATTACK;
+    if (active_player < arena.nb_teams) {
+        active_player++;
+        phase = Phase::ENEMY;
+    } else {
         active_player = 1;
+        phase = Phase::ATTACK;
     }
 }
 
@@ -138,5 +147,31 @@ void MainWindow::click_callback(Arena& arena, int x, int y) {
 
         if (nb_cells_to_grow == 0)
             end_turn(arena);
+    }
+}
+
+void MainWindow::game_over(bool won) {
+    map_drawer->draw_gameover(won);
+    SDL_RenderPresent(renderer);
+    wait_for_key();
+}
+
+void MainWindow::wait_for_key() const {
+    SDL_Event event;
+    while (true) {
+        while (SDL_PollEvent(&event) != 0) {
+            if (event.type == SDL_KEYDOWN)
+                return;
+
+            else if (event.type == SDL_MOUSEBUTTONDOWN) {
+                int x, y;
+                SDL_GetMouseState(&x, &y);
+                int win_width, win_height;
+                SDL_GetWindowSize(window, &win_width, &win_height);
+                if (y > win_height - BANNER_HEIGHT)
+                    return;
+            }
+        }
+        SDL_Delay(100);
     }
 }
