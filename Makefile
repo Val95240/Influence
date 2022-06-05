@@ -19,18 +19,18 @@ all: main generate_map
 main: $(OBJECTS)
 	@ mkdir -p build/
 	@ mkdir -p build/agents/
-	@ $(CC) $(CFLAGS) $^ $(LFLAGS) -o $@
+	$(CC) $(CFLAGS) $^ $(LFLAGS) -o $@
 
 generate_map: $(OBJECTS_MAP)
 	@ mkdir -p build/
 	@ mkdir -p build/agents/
-	@ $(CC) $(CFLAGS) $^ $(LFLAGS) -o $@
+	$(CC) $(CFLAGS) $^ $(LFLAGS) -o $@
 
 build/%.o: src/%.cpp $(HEADERS)
 	@ mkdir -p build/
 	@ mkdir -p build/agents/
-	@ $(CC) -c $(CFLAGS) -o $@ $<
+	$(CC) -c $(CFLAGS) -o $@ $<
 
 clean:
 	rm -rf build/
-	rm main generate_map
+	rm -f main generate_map

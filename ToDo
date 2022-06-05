@@ -1,7 +1,12 @@
 
 # Now
 
-- [ ] MapEditor change TextInput by W/w;E/e;N/n for [increasing/decreasing] width/height/nb_teams
+- [ ] MapEditor
+  + [ ] change TextInput by W/w;E/e;N/n for [increasing/decreasing] width/height/nb_teams
+  + [ ] keybinding to change 8_cell to 12_cell
+  + [ ] arrows in addition to hjkl
+- [ ] `generate_map`: indicate where the links are broken if invalid csv
+- [ ] Keybindings for main game too
 - [ ] Victory/Defeat management
 
 - [ ] `MapGenerator` class

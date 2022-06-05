@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 
     size_t index = map_file.find('.');
     if (index == std::string::npos || map_file.substr(index+1) != "csv") {
-        std::cout << "Invalid map file: the map file extension needs to be `.map`" << std::endl;
+        std::cout << "Invalid map file: the map file extension needs to be `.csv`" << std::endl;
         return 1;
     }
 
